@@ -7,17 +7,58 @@ Versions are dated rather than semver-tagged, since the project ships as a singl
 
 ---
 
-## [Unreleased]
+## [Unreleased](https://github.com/Scrince/Local_Financial_Vault/compare/main...HEAD)
 
 Changes staged but not yet formally released go here.
 
 ---
 
-## [2.0.0] — 2025-05-06
+## [2.1.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.1.0) — 2026-05-07
+
+> **Compatible with V2 vault files.** No re-encryption or migration is required. The `migrateVault()` function automatically upgrades any V2 vault with the older schema layout on first open. See [MIGRATION.md](https://github.com/Scrince/Local_Financial_Vault/blob/main/MIGRATION.md) for details.
+
+### Added
+
+- **Drag-and-drop row reordering** — rows in every category table now have a drag handle (⠿) and can be dragged to reorder entries. Drag handles and highlighting are suppressed while a search filter is active. Reordering updates `vault.metadata.lastModifiedAt` and re-renders the table immediately.
+- **Password match progress bar** — a live progress bar and label appear below the "Confirm password" field in the Create Vault modal, showing whether the two password fields match and how much prefix overlap exists.
+- **Comma-formatted monetary input** — all `number`-type schema fields in the Add/Edit modal render as formatted text inputs with live comma insertion as the user types (e.g. `1234567.89` displays as `1,234,567.89`). Raw numeric values are stored internally without commas.
+- **Expiration date auto-mask** — the Credit Card `expDate` field auto-inserts a `/` separator after two digits, producing `MM/YY` format as the user types.
+- **Export redaction options** — the Export modal now includes a "Redact Sensitive Fields" section with three checkboxes:
+  - *Bank account numbers* — truncates to last 4 digits in the export output.
+  - *Card numbers* — truncates to last 4 digits.
+  - *Card CVV & PIN* — replaces both fields with `•••`.
+  - Redaction is applied to all three export formats (CSV, JSON, PDF).
+- **Charts embedded in PDF export** — if the Snapshots tab has been visited during the current session, the three canvas charts (Net Worth Over Time, Assets vs. Debts, Assets by Category) are captured as PNG images and embedded in the PDF export print view.
+- **`cardLimit` field on Credit Cards** — a new "Card Limit ($)" field has been added to the Credit Cards schema, separate from the existing "Balance ($)" field. The two fields serve different purposes: `balance` reflects the current amount owed or available, while `cardLimit` records the total credit limit on the card.
+- **`cardType` select on Credit Cards** — a new "Card Type" select field (options: Credit, Debit, Other) has been added to the Credit Cards schema.
+- **Net Equity computed column on Other Assets** — a read-only "Net Equity" column is displayed in the Other Assets table and in exports, calculated as `estimatedValue − loanAmount`.
+- **`walletId` field on Crypto** — a new "ID" field stores the wallet address or exchange account identifier for each crypto entry.
+- **In-session save indicator** — `updateSaveIndicator()` tracks whether the current vault has unsaved changes and reflects this in the UI.
+
+### Changed
+
+- **Stocks schema** — the `purchasePrice` and `currentPrice` fields have been removed from the Stocks entry form. `value` (a single dollar-amount field labelled "Value ($)") and `shares` (now a plain text field) replace the former computed model. This is a within-V2 schema change; `migrateVault()` computes an initial `value` from `shares × currentPrice` for any vault opened that still carries the old fields.
+- **Crypto schema** — `purchasePrice` has been removed from the Crypto entry form. The `currentPrice` field label has been renamed to "Value ($)" to reflect that it now stores the total holding value rather than a per-unit price. `migrateVault()` drops `purchasePrice` on open.
+- **Credit Cards schema** — `creditLimit` (the old field name in V1 and early V2 vaults) is automatically renamed to `balance` by `migrateVault()` on open if `balance` is not already present. The new `cardLimit` field is separate and distinct.
+- **Export modal** — category list is now generated dynamically from `EXPORT_CATEGORIES` constant; "Select All" and "Select None" controls added. Format tabs (CSV / JSON / PDF) updated to reflect new PDF chart-embedding behaviour.
+- **KDF progress message wording** — the status message shown during open/save now reads `"🔐 Verifying key & MAC (this takes a moment)…"` to better describe what is happening during the 1M-iteration PBKDF2 operation on open.
+- **MIGRATION.md** — updated to document within-V2 schema migrations handled by `migrateVault()`.
+- **README.md** — category feature table updated to reflect current schemas; new features section added.
+- **SECURITY.md** — export redaction section added; no cryptographic changes.
+- **THREAT_MODEL.md** — supply-chain section updated with SHA-256 checksum note; Revision History updated.
+
+### Fixed
+
+- **Duplicate entry on Credit Cards** with `expMonth`/`expYear` fields — `migrateVault()` now correctly merges these into `expDate` (MM/YY) regardless of whether the entry came from a V1-era export JSON or an early V2 vault.
+- **Counter encoding in HMAC-SHA512-CTR** — the counter byte-encoding loop previously had a redundant first pass; the correct big-endian encoding now runs only once per block.
+
+---
+
+## [2.0.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.0.0) — 2025-05-06
 
 ### ⚠ Breaking Change — Vault Format V2
 
-**V2 `.lfv` files cannot be opened by V1 builds of the app, and V1 files cannot be opened by V2 builds.** Before updating, follow the [Migration Guide](MIGRATION.md) to export and re-import your data.
+**V2 `.lfv` files cannot be opened by V1 builds of the app, and V1 files cannot be opened by V2 builds.** Before updating, follow the [Migration Guide](https://github.com/Scrince/Local_Financial_Vault/blob/main/MIGRATION.md) to export and re-import your data.
 
 ---
 
@@ -56,37 +97,37 @@ The entire encryption scheme has been replaced. The previous scheme (PBKDF2-SHA2
 
 **File format details:**
 - `.lfv` files are now UTF-8 JSON with a `"magic": "LOCALFINANCIALVAULT-V2"` header.
-- All cryptographic parameters (`kdf`, `kdf_iterations`, `cipher`, `mac_algo`, `salt_b64`, `nonce_b64`, `ciphertext_b64`, `mac_b64`) are embedded in the file — fully self-describing with no external configuration.
-- Fresh 256-bit salt and 256-bit nonce are generated on every save, regardless of whether the password changed.
+- All cryptographic parameters are embedded in the file — fully self-describing.
+- Fresh 256-bit salt and 256-bit nonce are generated on every save.
 
 ---
 
 ### Added
 
-- **V2 file armor** — `.lfv` files now parse and validate as JSON. The magic header `LOCALFINANCIALVAULT-V2` and `version: 2` field are checked on open before any decryption is attempted.
-- **KDF progress indicator** — a status message (`🔐 Deriving key (this takes a moment)…`) is displayed during save and open operations while the 1M-iteration KDF runs, so users are not left wondering if the app has frozen.
-- **Richer error messages** — decryption failures now surface the underlying error detail (wrong password vs. corrupted file vs. format mismatch) rather than a single generic alert.
-- **`format` field in vault metadata** — the decrypted vault JSON now includes `"format": "LOCALFINANCIALVAULT-V2"` in its metadata block for forward-compatibility identification.
-- **`version: "2.0"` in vault metadata** — internal vault schema version bumped from `"1.0"` to `"2.0"`.
+- **V2 file armor** — `.lfv` files now parse and validate as JSON.
+- **KDF progress indicator** — status message during save/open operations.
+- **Richer error messages** — decryption failures surface the underlying error detail.
+- **`format` field in vault metadata** — `"format": "LOCALFINANCIALVAULT-V2"`.
+- **`version: "2.0"` in vault metadata** — bumped from `"1.0"`.
 
 ### Changed
 
-- **Save file MIME type** — `.lfv` files are now served as `application/json` instead of `text/plain` in download fallback mode.
-- **Open error handling** — both the standard file-input open path and the File System Access API path now display a status message reset on failure, preventing the UI from showing a stale "decrypting…" message after a bad password attempt.
-- **SECURITY.md** — fully rewritten to document the V2 scheme, updated threat model, and formal vulnerability reporting process.
-- **README.md** — encryption model section, file format section, and data model section updated to reflect V2.
-- **CONTRIBUTING.md** — cryptographic contribution guidelines added; commit message format specified.
+- **Save file MIME type** — `.lfv` files served as `application/json` in download fallback mode.
+- **Open error handling** — status message reset on failure.
+- **SECURITY.md** — fully rewritten to document the V2 scheme.
+- **README.md** — encryption model, file format, and data model sections updated.
+- **CONTRIBUTING.md** — cryptographic contribution guidelines added.
 
 ### Removed
 
-- **PBKDF2-SHA-256 + AES-GCM** encryption (V1 scheme) — entirely removed from the codebase. No V1 compatibility shim is provided. See [MIGRATION.md](MIGRATION.md).
+- **PBKDF2-SHA-256 + AES-GCM** encryption (V1 scheme) — entirely removed.
 - **`getKey()` function** — replaced by `deriveKeys()`.
-- **`joinBufs()` helper** — no longer needed; the V2 format uses JSON fields rather than a concatenated binary blob.
-- **Raw Base64 vault format** — V1 files (bare Base64 strings with no JSON wrapper) will fail the magic-header check and produce a clear error message.
+- **`joinBufs()` helper** — no longer needed.
+- **Raw Base64 vault format** — V1 files will fail the magic-header check with a clear error message.
 
 ---
 
-## [1.0.0] — 2025 (initial release)
+## [1.0.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v1.0.0) — 2025 (initial release)
 
 ### Added
 
@@ -113,10 +154,6 @@ The entire encryption scheme has been replaced. The previous scheme (PBKDF2-SHA2
 ## Format Version Reference
 
 | Format version | Magic header | KDF | Cipher | Status |
-|:---:|---|---|---|:---:|
+|---|---|---|---|---|
 | 1 | *(none — raw Base64)* | PBKDF2-HMAC-SHA-256, 100k iter | AES-256-GCM | ❌ Retired |
 | 2 | `LOCALFINANCIALVAULT-V2` | PBKDF2-HMAC-SHA-512, 1M iter | HMAC-SHA-512-CTR | ✅ Current |
-
-[Unreleased]: https://github.com/Scrince/Local-Financial-Vault/compare/main...HEAD
-[2.0.0]: https://github.com/Scrince/Local-Financial-Vault/releases/tag/v2.0.0
-[1.0.0]: https://github.com/Scrince/Local-Financial-Vault/releases/tag/v1.0.0
