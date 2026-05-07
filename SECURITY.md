@@ -1,95 +1,129 @@
 # Security Policy
 
-## 🔐 Overview
+## Supported Versions
 
-Local Financial Vault is designed with a strict security model:  
-all data is stored **locally**, **encrypted**, and **never** transmitted over a network.  
-Maintaining this security posture is the highest priority for the project.
+Only the latest version of `LocalFinancialVault.html` in the `main` branch receives security updates. There are no versioned release branches to backport fixes to — the project is a single self-contained file.
 
-This document outlines how to report vulnerabilities, what types of issues are considered security‑relevant, and the expectations for contributors.
+| Version | Supported |
+|---|:---:|
+| V2 (current, `main`) | ✅ |
+| V1 (PBKDF2-SHA256 + AES-GCM) | ❌ |
 
----
-
-## 📣 Reporting a Vulnerability
-
-If you discover a security issue:
-
-1. **Do not** open a public GitHub issue.
-2. Contact the maintainer privately using GitHub’s **Security Advisory** feature or direct email (if listed).
-3. Provide:
-   - A clear description of the issue  
-   - Steps to reproduce  
-   - Potential impact  
-   - Any suggested remediation  
-
-You will receive a response as quickly as possible.
+If you are using a V1 vault file (no `magic` field in the JSON, or a raw Base64 blob), please re-save it with the current version to upgrade to the V2 format.
 
 ---
 
-## 🛡 Supported Security Principles
+## Encryption Scheme — V2
 
-Local Financial Vault adheres to the following core security principles:
+The current format (`LOCALFINANCIALVAULT-V2`) uses the following construction:
 
-### 1. **Fully Offline Operation**
-- No network requests  
-- No external APIs  
-- No CDNs or remote scripts  
-- No telemetry or analytics  
+### Key Derivation
 
-### 2. **Strong Cryptography**
-- PBKDF2‑SHA256 (100,000 iterations) for key derivation  
-- AES‑GCM for authenticated encryption  
-- Random salt and IV per vault  
-- No plaintext vault data is ever written to disk  
+```
+PBKDF2-HMAC-SHA512(password, salt, iterations=1_000_000, dkLen=64)
+  → 512-bit IKM (input key material)
 
-### 3. **Local‑Only Data Storage**
-- All data remains in memory until encrypted and exported  
-- No browser storage (localStorage, sessionStorage, IndexedDB) is used for sensitive data  
-- In‑memory data is cleared on lock, reload, or tab close  
+encKey  = HMAC-SHA512(IKM, "encryption")       // 512-bit encryption key
+macKey  = HMAC-SHA512(IKM, "authentication")   // 512-bit authentication key
+```
 
-### 4. **Minimal Attack Surface**
-- Single‑page application  
-- No dependencies  
-- No build system  
-- No external libraries (crypto, UI, charting, etc.)  
+- Salt is 256-bit (32 bytes), randomly generated per save using `crypto.getRandomValues`.
+- Keys are domain-separated to prevent cross-context key reuse.
+- All primitives are implemented via the browser's native **Web Crypto API** (`SubtleCrypto`). No third-party cryptographic libraries are used.
 
----
+### Encryption
 
-## 🚫 Out‑of‑Scope / Will Not Be Accepted
+```
+HMAC-SHA512-CTR stream cipher:
+  For each 64-byte block i:
+    pad[i] = HMAC-SHA512(encKey, nonce ‖ counter_i)
+    ciphertext[i] = plaintext[i] XOR pad[i]
+```
 
-To preserve the security model, the following changes will **not** be accepted:
+- Nonce is 256-bit (32 bytes), randomly generated per save.
+- The stream cipher produces a unique keystream per (key, nonce) pair. Nonce reuse with the same key would be catastrophic — the random 256-bit nonce makes collision probability negligible.
 
-- Adding any network communication  
-- Integrating external libraries or frameworks  
-- Weakening or replacing the cryptographic model  
-- Storing sensitive data in browser storage  
-- Adding cloud sync, remote backups, or multi‑user features  
-- Introducing server‑side components  
+### Authentication
 
----
+```
+MAC = HMAC-SHA512(macKey, magic ‖ salt ‖ nonce ‖ ciphertext)
+```
 
-## 🧪 Security Testing Expectations
+- The MAC covers the magic header, all key derivation parameters, and the full ciphertext.
+- MAC verification occurs **before** any decryption (encrypt-then-MAC). A wrong password or any bit flip in the file is detected immediately.
+- Comparison uses a simple XOR accumulator to mitigate timing side-channels.
 
-Before submitting changes, contributors should verify:
+### File Structure
 
-- Vault creation, encryption, and decryption work correctly  
-- No sensitive data appears in logs, console output, or browser storage  
-- No network requests are made  
-- Autolock clears all in‑memory data  
-- Charts and UI features do not leak sensitive information  
-- Error messages do not reveal cryptographic details  
-
----
-
-## 🔄 Disclosure Policy
-
-- Vulnerabilities will be acknowledged privately.  
-- Fixes will be developed and tested before public disclosure.  
-- Security advisories will be published when appropriate.  
+```json
+{
+  "magic":          "LOCALFINANCIALVAULT-V2",
+  "version":        2,
+  "kdf":            "PBKDF2-HMAC-SHA512",
+  "kdf_iterations": 1000000,
+  "cipher":         "HMAC-SHA512-CTR",
+  "mac_algo":       "HMAC-SHA512",
+  "salt_b64":       "...",
+  "nonce_b64":      "...",
+  "ciphertext_b64": "...",
+  "mac_b64":        "..."
+}
+```
 
 ---
 
-## 🙏 Thank You
+## Threat Model
 
-Security is foundational to Local Financial Vault.  
-Thank you for helping keep the project safe, private, and trustworthy.
+### What this tool protects against
+
+- **Offline file theft** — an attacker who obtains a `.lfv` file cannot read it without the password. The 1M-iteration KDF makes bulk brute-force attacks computationally expensive.
+- **Ciphertext tampering** — the HMAC-SHA512 MAC detects any modification to the file.
+- **Metadata leakage from the file itself** — all financial data, category names, entry counts, and field values are inside the encrypted payload. The only plaintext in the file is the cryptographic envelope (algorithm identifiers, salt, nonce, MAC).
+- **IV/nonce reuse** — fresh 256-bit nonces are generated cryptographically at random on every save.
+
+### What this tool does NOT protect against
+
+- **A compromised device** — if the OS, browser, or file system is under attacker control, client-side encryption cannot fully protect your data.
+- **Weak passwords** — the KDF is intentionally slow, but a short or guessable password can still be brute-forced offline. Use a long, random passphrase.
+- **Browser extensions** — a malicious browser extension with access to the page can read in-memory JavaScript variables, including the decrypted vault and the password. Run the vault in a trusted browser profile without untrusted extensions.
+- **Physical access attacks** — screen recording, over-the-shoulder observation, or memory forensics after the session.
+- **Auto-lock limitations** — the 10-minute auto-lock timer is based on DOM events. A suspended OS (e.g. laptop lid close) will not trigger the lock until the timer fires after resume.
+
+---
+
+## Reporting a Vulnerability
+
+If you discover a security vulnerability — including cryptographic weaknesses, logic flaws, or any issue that could expose encrypted vault data — please report it **privately** before disclosing publicly.
+
+**How to report:**
+
+1. Open a [GitHub Security Advisory](https://github.com/Scrince/Local-Financial-Vault/security/advisories/new) on this repository (preferred — keeps the report private until patched).
+2. Alternatively, open a GitHub Issue marked `[SECURITY]` if the issue is low-severity and does not risk exposing user data.
+
+**Please include:**
+
+- A clear description of the vulnerability.
+- Steps to reproduce or a proof-of-concept (if applicable).
+- The potential impact and affected versions.
+- Any suggested mitigations or fixes, if you have them.
+
+**Response commitment:**
+
+- Acknowledgement within **72 hours**.
+- A status update within **7 days**.
+- A patch and coordinated disclosure within **30 days** of a confirmed critical vulnerability.
+
+We appreciate responsible disclosure and will credit reporters in the changelog unless they prefer to remain anonymous.
+
+---
+
+## Security Design Principles
+
+The following principles guide all cryptographic decisions in this project:
+
+1. **No external dependencies.** All cryptography uses the browser's built-in `SubtleCrypto` API. No third-party libraries means no supply-chain risk.
+2. **Encrypt-then-MAC.** Authentication always covers the ciphertext, never the plaintext.
+3. **Domain separation.** Encryption and authentication keys are derived separately, preventing cross-context key confusion.
+4. **Fail closed.** A MAC failure or format mismatch results in an immediate error — no partial decryption, no plaintext output.
+5. **Minimal metadata.** The only unencrypted data in a `.lfv` file is the cryptographic envelope. No timestamps, entry counts, or category names are stored in plaintext.
+6. **Fresh randomness per operation.** Salt and nonce are regenerated on every save, regardless of whether the password changed.

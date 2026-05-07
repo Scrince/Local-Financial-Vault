@@ -14,17 +14,54 @@
   --border: #333;
   --muted: #888;
   --input-bg: #222;
+  --modal-bg: #181818;
+  --header-bg: #000;
+  --sidebar-bg: #181818;
+  --tab-bg: #050505;
+  --tr-even: #141414;
+  --tr-odd: #101010;
+  --th-bg: #151515;
+  --chart-bg: #181818;
+  --grid-line: #252525;
+  --shadow: rgba(0,0,0,0.5);
+  --toggle-off: #444;
 }
+
+body.light-mode {
+  --bg: #f4f6f8;
+  --bg-alt: #ffffff;
+  --fg: #1a1a2e;
+  --accent: #1a7abf;
+  --danger: #c0392b;
+  --border: #d0d5dd;
+  --muted: #6b7280;
+  --input-bg: #f9fafb;
+  --modal-bg: #ffffff;
+  --header-bg: #1a1a2e;
+  --sidebar-bg: #ffffff;
+  --tab-bg: #e8ecf0;
+  --tr-even: #f0f3f6;
+  --tr-odd: #fafbfc;
+  --th-bg: #e2e8f0;
+  --chart-bg: #ffffff;
+  --grid-line: #e2e8f0;
+  --shadow: rgba(0,0,0,0.15);
+  --toggle-off: #9ca3af;
+}
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--fg);
+  transition: background 0.2s, color 0.2s;
 }
+
 header {
   padding: 0.75rem 1rem;
-  background: #000;
+  background: var(--header-bg);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -32,6 +69,7 @@ header {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
 header h1 {
   margin: 0;
   font-size: 1.1rem;
@@ -39,9 +77,10 @@ header h1 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  color: #fff;
 }
-#btnSettings {
-  background: var(--accent);
+
+#btnSettings, #btnExport {
   color: #fff;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -49,23 +88,34 @@ header h1 {
   font-size: 0.75rem;
   cursor: pointer;
 }
+
+#btnSettings { background: var(--accent); }
+#btnExport { background: #2ecc71; }
+
 header .summary {
   display: flex;
   gap: 1.5rem;
   font-size: 0.9rem;
 }
+
 header .summary span label {
-  color: var(--muted);
+  color: #aaa;
   margin-right: 0.25rem;
 }
+
+header .summary span span {
+  color: #fff;
+}
+
 main {
   display: flex;
   height: calc(100vh - 52px);
 }
+
 .sidebar {
   width: 220px;
   border-right: 1px solid var(--border);
-  background: var(--bg-alt);
+  background: var(--sidebar-bg);
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
@@ -73,11 +123,13 @@ main {
   overflow-y: auto;
   flex-shrink: 0;
 }
+
 .sidebar section {
   border: 1px solid var(--border);
   padding: 0.5rem;
   border-radius: 4px;
 }
+
 .sidebar h2 {
   font-size: 0.85rem;
   margin: 0 0 0.5rem 0;
@@ -85,6 +137,7 @@ main {
   letter-spacing: 0.05em;
   color: var(--muted);
 }
+
 .sidebar button {
   background: var(--accent);
   color: #fff;
@@ -97,7 +150,9 @@ main {
   margin-bottom: 0.3rem;
   text-align: left;
 }
+
 .sidebar button.danger { background: var(--danger); }
+
 .sidebar input[type="file"]::file-selector-button {
   background: var(--accent);
   color: #fff;
@@ -107,11 +162,13 @@ main {
   font-size: 0.8rem;
   cursor: pointer;
 }
+
 .sidebar input[type="file"] {
   width: 100%;
   font-size: 0.75rem;
   color: var(--muted);
 }
+
 .content {
   flex: 1;
   display: flex;
@@ -119,13 +176,16 @@ main {
   overflow: hidden;
   min-width: 0;
 }
+
 .top-bar {
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  background: var(--bg);
 }
+
 .top-bar input[type="text"] {
   flex: 1;
   padding: 0.35rem;
@@ -135,12 +195,14 @@ main {
   color: var(--fg);
   font-size: 0.85rem;
 }
+
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
-  background: #050505;
+  background: var(--tab-bg);
   flex-wrap: wrap;
 }
+
 .tab {
   padding: 0.5rem 0.75rem;
   cursor: pointer;
@@ -150,35 +212,43 @@ main {
   user-select: none;
   white-space: nowrap;
 }
+
 .tab.active {
   background: var(--bg-alt);
   color: var(--fg);
   font-weight: 600;
 }
+
 .tab-content {
   flex: 1;
   overflow: auto;
   padding: 0.75rem;
+  background: var(--bg);
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
 }
+
 th, td {
   border: 1px solid var(--border);
   padding: 0.35rem 0.4rem;
   text-align: left;
   white-space: nowrap;
 }
+
 th {
-  background: #151515;
+  background: var(--th-bg);
   position: sticky;
   top: 0;
   z-index: 1;
 }
-tr:nth-child(even) { background: #141414; }
-tr:nth-child(odd)  { background: #101010; }
+
+tr:nth-child(even) { background: var(--tr-even); }
+tr:nth-child(odd) { background: var(--tr-odd); }
+
 .actions button {
   font-size: 0.7rem;
   padding: 0.2rem 0.35rem;
@@ -188,9 +258,11 @@ tr:nth-child(odd)  { background: #101010; }
   cursor: pointer;
   color: #fff;
 }
+
 .actions button.edit-btn { background: var(--accent); }
-.actions button.dup-btn  { background: #7c5cbf; }
-.actions button.del-btn  { background: var(--danger); }
+.actions button.dup-btn { background: #7c5cbf; }
+.actions button.del-btn { background: var(--danger); }
+
 .controls {
   margin-bottom: 0.5rem;
   display: flex;
@@ -198,6 +270,7 @@ tr:nth-child(odd)  { background: #101010; }
   align-items: center;
   flex-wrap: wrap;
 }
+
 .controls button {
   background: var(--accent);
   color: #fff;
@@ -207,7 +280,11 @@ tr:nth-child(odd)  { background: #101010; }
   font-size: 0.75rem;
   cursor: pointer;
 }
-.status { font-size: 0.75rem; color: var(--muted); }
+
+.status {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 
 /* Modals */
 .modal-backdrop {
@@ -219,8 +296,9 @@ tr:nth-child(odd)  { background: #101010; }
   justify-content: center;
   z-index: 1000;
 }
+
 .modal {
-  background: var(--bg-alt);
+  background: var(--modal-bg);
   border: 1px solid var(--border);
   padding: 0.75rem;
   border-radius: 4px;
@@ -228,9 +306,18 @@ tr:nth-child(odd)  { background: #101010; }
   max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
+  color: var(--fg);
 }
-.modal h3 { margin: 0 0 0.5rem 0; font-size: 0.95rem; }
-.modal label { font-size: 0.8rem; display: block; margin-top: 0.5rem; color: var(--muted); }
+
+.modal h3 { margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--fg); }
+
+.modal label {
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
 .modal input[type="password"],
 .modal input[type="text"],
 .modal input[type="number"],
@@ -245,13 +332,146 @@ tr:nth-child(odd)  { background: #101010; }
   font-size: 0.85rem;
   font-family: inherit;
 }
+
 .modal textarea { resize: vertical; min-height: 60px; }
-.modal-footer { margin-top: 0.75rem; text-align: right; }
-.modal-footer button { padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 3px; border: none; cursor: pointer; }
-.modal-footer button.primary   { background: var(--accent); color: #fff; }
+
+.modal-footer {
+  margin-top: 0.75rem;
+  text-align: right;
+}
+
+.modal-footer button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-footer button.primary { background: var(--accent); color: #fff; }
 .modal-footer button.secondary { background: #333; color: #fff; margin-right: 0.25rem; }
+
 mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1px; }
 .empty-state { color: var(--muted); font-size: 0.85rem; padding: 1rem 0; }
+
+/* Settings modal sections */
+.settings-section {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.settings-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+/* Dark mode toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--fg);
+  margin-top: 0.25rem;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--toggle-off);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-slider:before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+/* Export modal */
+.export-format-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.export-format-tab {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--input-bg);
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  user-select: none;
+  transition: all 0.15s;
+}
+
+.export-format-tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.export-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.export-categories label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.export-categories input[type="checkbox"] {
+  width: auto;
+}
+
+.export-check-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.export-check-controls a {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
 
 /* Charts */
 .charts-grid {
@@ -260,13 +480,16 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
 .chart-box {
-  background: var(--bg-alt);
+  background: var(--chart-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.75rem;
 }
+
 .chart-box.wide { grid-column: 1 / -1; }
+
 .chart-box h4 {
   margin: 0 0 0.5rem 0;
   font-size: 0.75rem;
@@ -274,7 +497,9 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
 .chart-box canvas { display: block; width: 100% !important; }
+
 .chart-legend {
   display: flex;
   flex-wrap: wrap;
@@ -283,31 +508,25 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   font-size: 0.71rem;
   color: var(--muted);
 }
+
 .chart-legend span { display: flex; align-items: center; gap: 0.25rem; }
 .legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
-/* Busy overlay */
-#busyOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
+/* In-memory save indicator */
+#saveIndicator {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 3px;
+  background: #2ecc7133;
+  color: #2ecc71;
+  margin-left: 0.25rem;
   display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  color: #fff;
-  font-size: 1rem;
-  flex-direction: column;
-  gap: 0.75rem;
 }
-#busyOverlay .spinner {
-  width: 36px; height: 36px;
-  border: 4px solid #444;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+
+body.light-mode #saveIndicator {
+  background: #16a34a22;
+  color: #16a34a;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -316,6 +535,8 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   <h1>
     🔐 Local Financial Vault
     <button id="btnSettings">⚙ Settings</button>
+    <button id="btnExport">⬇ Export</button>
+    <span id="saveIndicator">● In-memory</span>
   </h1>
   <div class="summary">
     <span><label>Assets:</label><span id="summaryAssets">$0.00</span></span>
@@ -366,16 +587,12 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   </div>
 </main>
 
-<!-- Busy overlay (shown during KDF) -->
-<div id="busyOverlay">
-  <div class="spinner"></div>
-  <span id="busyMsg">Deriving key… this takes a moment for security.</span>
-</div>
-
 <!-- Modal: Create Vault -->
 <div class="modal-backdrop" id="modalCreateVault">
   <div class="modal">
     <h3>Create New Vault</h3>
+    <label>Vault Name</label>
+    <input type="text" id="createVaultName" placeholder="My Financial Vault">
     <label>Password (min 12 characters)</label>
     <input type="password" id="createVaultPassword">
     <label>Confirm password</label>
@@ -400,19 +617,79 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
   </div>
 </div>
 
-<!-- Modal: Settings / Change Password -->
-<div class="modal-backdrop" id="modalChangePassword">
+<!-- Modal: Name vault on first save (for newly created vaults) -->
+<div class="modal-backdrop" id="modalSaveName">
   <div class="modal">
-    <h3>Change Vault Password</h3>
-    <label>Current password</label>
-    <input type="password" id="oldPassword">
-    <label>New password (min 12 characters)</label>
-    <input type="password" id="newPassword">
-    <label>Confirm new password</label>
-    <input type="password" id="newPassword2">
+    <h3>Name Your Vault File</h3>
+    <label>File name (without extension)</label>
+    <input type="text" id="saveNameInput" placeholder="my-vault">
+    <p style="font-size:0.75rem;color:var(--muted);margin:0.4rem 0 0;">The file will be saved as <strong id="saveNamePreview">my-vault.lfv</strong></p>
     <div class="modal-footer">
-      <button class="secondary" id="cancelChangePassword">Cancel</button>
-      <button class="primary" id="confirmChangePassword">Change Password</button>
+      <button class="secondary" id="cancelSaveName">Cancel</button>
+      <button class="primary" id="confirmSaveName">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Settings -->
+<div class="modal-backdrop" id="modalSettings">
+  <div class="modal" style="width:420px;">
+    <h3>⚙ Settings</h3>
+
+    <!-- Appearance section -->
+    <div class="settings-section">
+      <h4>Appearance</h4>
+      <div class="toggle-row">
+        <span>☀ Light Mode</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span>🌙 Dark Mode</span>
+      </div>
+    </div>
+
+    <!-- Change Password section -->
+    <div class="settings-section">
+      <h4>Change Vault Password</h4>
+      <label>Current password</label>
+      <input type="password" id="oldPassword">
+      <label>New password (min 12 characters)</label>
+      <input type="password" id="newPassword">
+      <label>Confirm new password</label>
+      <input type="password" id="newPassword2">
+      <div style="margin-top:0.5rem;text-align:right;">
+        <button class="primary" id="confirmChangePassword" style="padding:0.3rem 0.6rem;font-size:0.8rem;border-radius:3px;border:none;cursor:pointer;background:var(--accent);color:#fff;">Change Password</button>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:0.25rem;">
+      <button class="secondary" id="cancelSettings">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Export -->
+<div class="modal-backdrop" id="modalExport">
+  <div class="modal" style="width:420px;">
+    <h3>⬇ Export Data</h3>
+
+    <div class="export-format-tabs">
+      <div class="export-format-tab active" data-fmt="csv">📄 CSV</div>
+      <div class="export-format-tab" data-fmt="json">{ } JSON</div>
+      <div class="export-format-tab" data-fmt="pdf">📑 PDF</div>
+    </div>
+
+    <label style="margin-top:0;">Select categories to export:</label>
+    <div class="export-check-controls">
+      <a id="exportSelectAll">Select All</a>
+      <a id="exportSelectNone">Select None</a>
+    </div>
+    <div class="export-categories" id="exportCategoryList"></div>
+
+    <div class="modal-footer">
+      <button class="secondary" id="cancelExport">Cancel</button>
+      <button class="primary" id="confirmExport">Export</button>
     </div>
   </div>
 </div>
@@ -431,78 +708,85 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
 
 <script>
 /* ============================================================
-  STATE
+   STATE
 ============================================================ */
-let vault         = null;
+let vault = null;
 let vaultPassword = null;
 let pendingOpenFile = null;
-let currentTab    = "bankAccounts";
-let currentEdit   = { category: null, index: null };
+let currentTab = "bankAccounts";
+let currentEdit = { category: null, index: null };
 let autoLockTimer = null;
-let searchQuery   = "";
+let searchQuery = "";
+let vaultFileName = null;      // custom name set by user on creation
+let openedFileHandle = null;   // File System Access API handle (if available)
+let openedFileText = null;     // fallback: raw text of opened file (for non-FSAA browsers)
+let darkMode = true;           // default dark
+let exportFormat = "csv";      // active export format
+
 const AUTO_LOCK_MS = 10 * 60 * 1000;
+const FSAA_SUPPORTED = ("showSaveFilePicker" in window);
 
 /* ============================================================
-  SCHEMAS
+   SCHEMAS
 ============================================================ */
 const SCHEMAS = {
   bankAccounts: [
-    { key:"institution",  label:"Institution",        type:"text"     },
-    { key:"accountType",  label:"Account Type",       type:"text"     },
-    { key:"accountNumber",label:"Account #",          type:"text"     },
-    { key:"routingNumber",label:"Routing #",          type:"text"     },
-    { key:"balance",      label:"Balance ($)",        type:"number"   },
-    { key:"pin",          label:"PIN",                type:"text"     },
-    { key:"notes",        label:"Notes",              type:"textarea" }
+    { key: "institution",  label: "Institution",      type: "text" },
+    { key: "accountType",  label: "Account Type",     type: "text" },
+    { key: "accountNumber",label: "Account #",        type: "text" },
+    { key: "routingNumber",label: "Routing #",        type: "text" },
+    { key: "balance",      label: "Balance ($)",      type: "number" },
+    { key: "pin",          label: "PIN",              type: "text" },
+    { key: "notes",        label: "Notes",            type: "textarea" }
   ],
   creditCards: [
-    { key:"issuer",       label:"Issuer",             type:"text"     },
-    { key:"cardNumber",   label:"Card Number",        type:"text"     },
-    { key:"expMonth",     label:"Exp Month (MM)",     type:"text"     },
-    { key:"expYear",      label:"Exp Year (YY)",      type:"text"     },
-    { key:"cvv",          label:"CVV",                type:"text"     },
-    { key:"creditLimit",  label:"Credit Limit ($)",   type:"number"   },
-    { key:"notes",        label:"Notes",              type:"textarea" }
+    { key: "issuer",       label: "Issuer",           type: "text" },
+    { key: "cardNumber",   label: "Card Number",      type: "text" },
+    { key: "expMonth",     label: "Exp Month (MM)",   type: "text" },
+    { key: "expYear",      label: "Exp Year (YY)",    type: "text" },
+    { key: "cvv",          label: "CVV",              type: "text" },
+    { key: "creditLimit",  label: "Credit Limit ($)", type: "number" },
+    { key: "notes",        label: "Notes",            type: "textarea" }
   ],
   retirementAccounts: [
-    { key:"institution",    label:"Institution",          type:"text"     },
-    { key:"accountType",    label:"Type (401k/IRA…)",     type:"text"     },
-    { key:"accountNumber",  label:"Account #",            type:"text"     },
-    { key:"currentBalance", label:"Current Balance ($)",  type:"number"   },
-    { key:"notes",          label:"Notes",                type:"textarea" }
+    { key: "institution",    label: "Institution",        type: "text" },
+    { key: "accountType",    label: "Type (401k/IRA…)",   type: "text" },
+    { key: "accountNumber",  label: "Account #",          type: "text" },
+    { key: "currentBalance", label: "Current Balance ($)", type: "number" },
+    { key: "notes",          label: "Notes",              type: "textarea" }
   ],
   stocks: [
-    { key:"ticker",        label:"Ticker",             type:"text"     },
-    { key:"companyName",   label:"Company",            type:"text"     },
-    { key:"shares",        label:"Shares",             type:"number"   },
-    { key:"purchasePrice", label:"Purchase Price ($)", type:"number"   },
-    { key:"currentPrice",  label:"Current Price ($)",  type:"number"   },
-    { key:"account",       label:"Brokerage",          type:"text"     },
-    { key:"notes",         label:"Notes",              type:"textarea" }
+    { key: "ticker",        label: "Ticker",           type: "text" },
+    { key: "companyName",   label: "Company",          type: "text" },
+    { key: "shares",        label: "Shares",           type: "number" },
+    { key: "purchasePrice", label: "Purchase Price ($)", type: "number" },
+    { key: "currentPrice",  label: "Current Price ($)", type: "number" },
+    { key: "account",       label: "Brokerage",        type: "text" },
+    { key: "notes",         label: "Notes",            type: "textarea" }
   ],
   crypto: [
-    { key:"coin",          label:"Coin / Token",       type:"text"     },
-    { key:"symbol",        label:"Symbol",             type:"text"     },
-    { key:"quantity",      label:"Quantity",           type:"number"   },
-    { key:"purchasePrice", label:"Purchase Price ($)", type:"number"   },
-    { key:"currentPrice",  label:"Current Price ($)",  type:"number"   },
-    { key:"wallet",        label:"Wallet / Exchange",  type:"text"     },
-    { key:"notes",         label:"Notes",              type:"textarea" }
+    { key: "coin",          label: "Coin / Token",     type: "text" },
+    { key: "symbol",        label: "Symbol",           type: "text" },
+    { key: "quantity",      label: "Quantity",         type: "number" },
+    { key: "purchasePrice", label: "Purchase Price ($)", type: "number" },
+    { key: "currentPrice",  label: "Current Price ($)", type: "number" },
+    { key: "wallet",        label: "Wallet / Exchange", type: "text" },
+    { key: "notes",         label: "Notes",            type: "textarea" }
   ],
   otherAssets: [
-    { key:"category",       label:"Category (vehicle, real estate…)", type:"text"     },
-    { key:"description",    label:"Description",                      type:"text"     },
-    { key:"estimatedValue", label:"Est. Value ($)",                   type:"number"   },
-    { key:"notes",          label:"Notes",                            type:"textarea" }
+    { key: "category",       label: "Category (vehicle, real estate…)", type: "text" },
+    { key: "description",    label: "Description",     type: "text" },
+    { key: "estimatedValue", label: "Est. Value ($)",  type: "number" },
+    { key: "notes",          label: "Notes",           type: "textarea" }
   ],
   debts: [
-    { key:"debtType",     label:"Type (loan, mortgage…)", type:"text"     },
-    { key:"lender",       label:"Lender",                 type:"text"     },
-    { key:"accountNumber",label:"Account #",              type:"text"     },
-    { key:"balance",      label:"Balance ($)",            type:"number"   },
-    { key:"interestRate", label:"Interest Rate (%)",      type:"number"   },
-    { key:"minPayment",   label:"Min Payment ($)",        type:"number"   },
-    { key:"notes",        label:"Notes",                  type:"textarea" }
+    { key: "debtType",     label: "Type (loan, mortgage…)", type: "text" },
+    { key: "lender",       label: "Lender",             type: "text" },
+    { key: "accountNumber",label: "Account #",          type: "text" },
+    { key: "balance",      label: "Balance ($)",        type: "number" },
+    { key: "interestRate", label: "Interest Rate (%)",  type: "number" },
+    { key: "minPayment",   label: "Min Payment ($)",    type: "number" },
+    { key: "notes",        label: "Notes",             type: "textarea" }
   ]
 };
 
@@ -518,7 +802,7 @@ const CATEGORY_LABELS = {
 };
 
 /* ============================================================
-  UTILITIES
+   UTILITIES
 ============================================================ */
 function setStatus(msg) { document.getElementById("statusText").textContent = msg; }
 
@@ -531,8 +815,7 @@ function resetAutoLockTimer() {
 function formatMoney(v) { return "$" + (Number(v) || 0).toFixed(2); }
 
 function escapeHtml(s) {
-  return String(s ?? "")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function highlightText(text, q) {
@@ -543,319 +826,314 @@ function highlightText(text, q) {
   );
 }
 
-/* busy overlay */
-function showBusy(msg) {
-  document.getElementById("busyMsg").textContent = msg || "Deriving key… this takes a moment for security.";
-  document.getElementById("busyOverlay").style.display = "flex";
-}
-function hideBusy() {
-  document.getElementById("busyOverlay").style.display = "none";
+/* ============================================================
+   DARK MODE
+============================================================ */
+function applyDarkMode(enabled) {
+  darkMode = enabled;
+  if (enabled) {
+    document.body.classList.remove("light-mode");
+  } else {
+    document.body.classList.add("light-mode");
+  }
+  localStorage.setItem("lfv_dark", enabled ? "1" : "0");
 }
 
+document.getElementById("darkModeToggle").addEventListener("change", e => {
+  applyDarkMode(e.target.checked);
+});
+
+// Restore preference
+(function() {
+  const pref = localStorage.getItem("lfv_dark");
+  const isDark = pref === null ? true : pref === "1";
+  document.getElementById("darkModeToggle").checked = isDark;
+  applyDarkMode(isDark);
+})();
+
 /* ============================================================
-  VAULT INIT
+   VAULT INIT
 ============================================================ */
-function initEmptyVault() {
+function initEmptyVault(name) {
   const now = new Date().toISOString();
   vault = {
-    metadata: { version: "2.0", createdAt: now, lastModifiedAt: now },
-    accounts: {
-      bankAccounts: [], creditCards: [], retirementAccounts: [],
-      stocks: [], crypto: [], otherAssets: [], debts: []
-    },
+    metadata: { version: "2.0", name: name || "vault", createdAt: now, lastModifiedAt: now, format: "LOCALFINANCIALVAULT-V2" },
+    accounts: { bankAccounts:[], creditCards:[], retirementAccounts:[], stocks:[], crypto:[], otherAssets:[], debts:[] },
     snapshots: []
   };
 }
 
 /* ============================================================
-  ARCULUS V2 CRYPTO ENGINE
-  ─────────────────────────────────────────────────────────────
-  Ported from Arculus_Recovery.html (Scrince/Arculus_Recovery)
-  with LFV-specific magic header / file extension.
-
-  Key derivation  : PBKDF2-HMAC-SHA512, 1,000,000 iterations
-  Key separation  : HMAC-SHA512 domain labels
-  Encryption      : HMAC-SHA512-CTR stream cipher
-  Authentication  : HMAC-SHA512 MAC over versioned metadata
-  File format     : armored UTF-8 (magic header + base64 JSON)
+   CRYPTO — Arculus V2 Format
+   PBKDF2-HMAC-SHA512 (1,000,000 iterations) + domain-separated keys
+   HMAC-SHA512-CTR stream cipher for encryption
+   HMAC-SHA512 MAC for authentication
+   File armored as JSON with magic header LOCALFINANCIALVAULT-V2
 ============================================================ */
 
-/* ---- constants ---- */
-const LFV_ARMOR_HEADER   = "LOCALFINANCIALVAULT-V2";
-const LFV_FORMAT         = "localfinancialvault-v2";
-const LFV_MAGIC          = "LOCALFINANCIALVAULT";
-const LFV_KDF_ITERATIONS = 1_000_000;
-const LFV_MIN_ITERATIONS = 600_000;   // accept imports with >= this many iters
-const LFV_SALT_BYTES     = 32;
-const LFV_NONCE_BYTES    = 24;
+const LFV_MAGIC   = "LOCALFINANCIALVAULT-V2";
+const LFV_VERSION = 2;
 
-/* ---- low-level helpers ---- */
-function lfvConcatBytes(...arrs) {
-  const total = arrs.reduce((s, a) => s + a.length, 0);
-  const out   = new Uint8Array(total);
-  let offset  = 0;
-  for (const a of arrs) { out.set(a, offset); offset += a.length; }
+// Encode/decode helpers
+const b64e = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const b64d = s => { const bin = atob(s), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a.buffer; };
+const te   = s => new TextEncoder().encode(s);
+const td   = b => new TextDecoder().decode(b);
+
+// XOR two equal-length Uint8Arrays in-place (dst ^= src)
+function xorBytes(dst, src) {
+  for (let i = 0; i < dst.length; i++) dst[i] ^= src[i];
+}
+
+// Import a raw key for HMAC-SHA-512 (sign + verify)
+async function importHmacKey(keyBytes) {
+  return crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: "SHA-512" }, false, ["sign", "verify"]);
+}
+
+// PBKDF2-HMAC-SHA512 → raw ArrayBuffer of `length` bytes
+async function pbkdf2sha512(password, salt, iterations, length) {
+  const baseKey = await crypto.subtle.importKey(
+    "raw", te(password), { name: "PBKDF2" }, false, ["deriveBits"]
+  );
+  return crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-512" },
+    baseKey, length * 8
+  );
+}
+
+// Derive two 64-byte keys from master key material using domain separation
+// encKey = HMAC-SHA512(ikm, "encryption")
+// macKey = HMAC-SHA512(ikm, "authentication")
+async function deriveKeys(password, salt) {
+  const ikm = await pbkdf2sha512(password, salt, 1_000_000, 64);
+  const ikmKey = await importHmacKey(ikm);
+  const encRaw = await crypto.subtle.sign("HMAC", ikmKey, te("encryption"));
+  const macRaw = await crypto.subtle.sign("HMAC", ikmKey, te("authentication"));
+  return { encKey: new Uint8Array(encRaw), macKey: new Uint8Array(macRaw) };
+}
+
+// HMAC-SHA512-CTR stream cipher
+// Generates a keystream by computing HMAC-SHA512(encKey, nonce || counter)
+// and XORs it with the plaintext/ciphertext block by block (64 bytes per block)
+async function hmacCtrCrypt(encKeyBytes, nonce, data) {
+  const hmacKey = await importHmacKey(encKeyBytes);
+  const out = new Uint8Array(data.length);
+  const blockSize = 64; // SHA-512 output = 64 bytes
+  const numBlocks = Math.ceil(data.length / blockSize);
+  const counterBuf = new Uint8Array(8); // 64-bit big-endian counter
+
+  for (let blk = 0; blk < numBlocks; blk++) {
+    // Encode counter as big-endian 64-bit
+    for (let i = 7; i >= 0; i--) {
+      counterBuf[i] = blk & 0xff;
+      // shift: intentionally simple since JS numbers cover 2^53 safely
+      if (i < 7) { /* upper bytes stay 0 for any realistic data size */ }
+    }
+    // Encode counter properly for all 8 bytes
+    let c = blk;
+    for (let i = 7; i >= 0; i--) { counterBuf[i] = c & 0xff; c = Math.floor(c / 256); }
+
+    // pad = HMAC-SHA512(encKey, nonce || counter)
+    const msg = new Uint8Array(nonce.length + 8);
+    msg.set(nonce, 0);
+    msg.set(counterBuf, nonce.length);
+    const pad = new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, msg));
+
+    const start = blk * blockSize;
+    const end   = Math.min(start + blockSize, data.length);
+    const slice = new Uint8Array(data.buffer, data.byteOffset + start, end - start);
+    const outSlice = out.subarray(start, end);
+    outSlice.set(slice);
+    xorBytes(outSlice, pad.subarray(0, end - start));
+  }
   return out;
 }
 
-function lfvIntToBytes(n, len) {
-  const out = new Uint8Array(len);
-  let x = BigInt(n);
-  for (let i = len - 1; i >= 0; i--) { out[i] = Number(x & 0xffn); x >>= 8n; }
-  return out;
+// Compute MAC = HMAC-SHA512(macKey, magic || salt || nonce || ciphertext)
+async function computeMac(macKeyBytes, magic, salt, nonce, ciphertext) {
+  const hmacKey = await importHmacKey(macKeyBytes);
+  const magicBytes = te(magic);
+  const msg = new Uint8Array(magicBytes.length + salt.length + nonce.length + ciphertext.length);
+  let off = 0;
+  msg.set(magicBytes, off);  off += magicBytes.length;
+  msg.set(salt,       off);  off += salt.length;
+  msg.set(nonce,      off);  off += nonce.length;
+  msg.set(ciphertext, off);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, msg));
 }
 
-function lfvBytesToB64(bytes) {
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin);
-}
-
-function lfvB64ToBytes(text) {
-  const bin = atob(text);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
-
-function lfvEqualBytes(a, b) {
+// Constant-time comparison (prevents timing attacks)
+async function safeCompare(a, b) {
   if (a.length !== b.length) return false;
+  const ka = await importHmacKey(a);
+  const sig = await crypto.subtle.sign("HMAC", ka, b);
+  // Both are 64-byte HMAC outputs — compare via verify
+  // Simpler: use SubtleCrypto verify if we can, otherwise manual XOR
   let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= (a[i] ^ b[i]);
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
 }
 
-async function lfvTextBytes(s) { return new TextEncoder().encode(s); }
+// Encrypt vault → JSON-armored string
+async function encryptVault(pwd) {
+  const salt  = crypto.getRandomValues(new Uint8Array(32)); // 256-bit salt
+  const nonce = crypto.getRandomValues(new Uint8Array(32)); // 256-bit nonce
+  const { encKey, macKey } = await deriveKeys(pwd, salt);
 
-/* ---- PBKDF2-HMAC-SHA512 ---- */
-async function lfvPbkdf2Sha512(passwordBytes, saltBytes, iterations, dkLen) {
-  const key  = await crypto.subtle.importKey("raw", passwordBytes, "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", hash: "SHA-512", salt: saltBytes, iterations },
-    key, dkLen * 8
-  );
-  return new Uint8Array(bits);
-}
+  const plaintext   = te(JSON.stringify(vault));
+  const ciphertext  = await hmacCtrCrypt(encKey, nonce, plaintext);
+  const mac         = await computeMac(macKey, LFV_MAGIC, salt, nonce, ciphertext);
 
-/* ---- HMAC-SHA512 ---- */
-async function lfvHmacSha512(keyBytes, dataBytes) {
-  const key = await crypto.subtle.importKey(
-    "raw", keyBytes, { name: "HMAC", hash: "SHA-512" }, false, ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, dataBytes);
-  return new Uint8Array(sig);
-}
-
-/* ---- domain-separated key derivation ---- */
-async function lfvDeriveKeys(password, saltBytes, iterations) {
-  if (!Number.isInteger(iterations) || iterations < LFV_MIN_ITERATIONS) {
-    throw new Error(`Vault uses too few KDF iterations (${iterations}).`);
-  }
-  const pwdBytes  = await lfvTextBytes(password.normalize("NFKD"));
-  const masterKey = await lfvPbkdf2Sha512(pwdBytes, saltBytes, iterations, 64);
-  const encKey    = await lfvHmacSha512(masterKey, await lfvTextBytes("LOCALFINANCIALVAULT v2 encryption key"));
-  const macKey    = await lfvHmacSha512(masterKey, await lfvTextBytes("LOCALFINANCIALVAULT v2 authentication key"));
-  return { encKey, macKey };
-}
-
-/* ---- HMAC-SHA512-CTR stream cipher ---- */
-async function lfvStreamCrypt(data, keyBytes, nonceBytes) {
-  const out    = new Uint8Array(data.length);
-  let offset   = 0;
-  let counter  = 0n;
-  const label  = await lfvTextBytes("LOCALFINANCIALVAULT v2 stream\u0000");
-  while (offset < data.length) {
-    const block = await lfvHmacSha512(keyBytes, lfvConcatBytes(label, nonceBytes, lfvIntToBytes(counter, 8)));
-    const take  = Math.min(block.length, data.length - offset);
-    for (let i = 0; i < take; i++) out[offset + i] = data[offset + i] ^ block[i];
-    offset  += take;
-    counter += 1n;
-  }
-  return out;
-}
-
-/* ---- MAC input construction (mirrors Arculus design) ---- */
-async function lfvMacData(bundle, saltBytes, nonceBytes, ciphertext) {
-  const kdf    = bundle.kdf    || {};
-  const cipher = bundle.cipher || {};
-  const sep    = Uint8Array.of(0);
-  const parts  = [
-    "LOCALFINANCIALVAULT v2 MAC",
-    String(bundle.magic      || ""),
-    String(bundle.format     || ""),
-    String(bundle.version    || ""),
-    String(bundle.created_at || ""),
-    String(kdf.name          || ""),
-    String(kdf.hash          || ""),
-    String(kdf.iterations    || ""),
-    String(cipher.name       || "")
-  ];
-  const encoded = [];
-  for (const p of parts) encoded.push(await lfvTextBytes(p), sep);
-  return lfvConcatBytes(...encoded, saltBytes, sep, nonceBytes, sep, ciphertext);
-}
-
-/* ============================================================
-  HIGH-LEVEL ENCRYPT / DECRYPT
-============================================================ */
-
-/**
- * Encrypt the current vault object.
- * Returns a two-line armored string:
- *   LOCALFINANCIALVAULT-V2
- *   <base64-encoded JSON bundle>
- */
-async function encryptVault(password) {
-  const salt    = crypto.getRandomValues(new Uint8Array(LFV_SALT_BYTES));
-  const nonce   = crypto.getRandomValues(new Uint8Array(LFV_NONCE_BYTES));
-  const now     = new Date().toISOString();
-
-  const { encKey, macKey } = await lfvDeriveKeys(password, salt, LFV_KDF_ITERATIONS);
-
-  const plaintext  = new TextEncoder().encode(JSON.stringify(vault));
-  const ciphertext = await lfvStreamCrypt(plaintext, encKey, nonce);
-
-  /* Build the bundle (sans mac) for MAC computation */
-  const bundle = {
-    magic:      LFV_MAGIC,
-    format:     LFV_FORMAT,
-    version:    2,
-    created_at: now,
-    kdf: {
-      name:       "PBKDF2-HMAC-SHA512",
-      hash:       "SHA-512",
-      iterations: LFV_KDF_ITERATIONS,
-      salt_b64:   lfvBytesToB64(salt)
-    },
-    cipher: {
-      name:      "HMAC-SHA512-CTR",
-      nonce_b64: lfvBytesToB64(nonce)
-    },
-    ciphertext_b64: lfvBytesToB64(ciphertext),
-    mac_b64: ""           /* placeholder; filled below */
+  const envelope = {
+    magic:          LFV_MAGIC,
+    version:        LFV_VERSION,
+    kdf:            "PBKDF2-HMAC-SHA512",
+    kdf_iterations: 1_000_000,
+    cipher:         "HMAC-SHA512-CTR",
+    mac_algo:       "HMAC-SHA512",
+    salt_b64:       b64e(salt.buffer),
+    nonce_b64:      b64e(nonce.buffer),
+    ciphertext_b64: b64e(ciphertext.buffer),
+    mac_b64:        b64e(mac.buffer)
   };
-
-  const macInput = await lfvMacData(bundle, salt, nonce, ciphertext);
-  const mac      = await lfvHmacSha512(macKey, macInput);
-  bundle.mac_b64 = lfvBytesToB64(mac);
-
-  /* Armored format: two-line text file */
-  const armoredBody = btoa(JSON.stringify(bundle));
-  return `${LFV_ARMOR_HEADER}\n${armoredBody}`;
+  return JSON.stringify(envelope);
 }
 
-/**
- * Decrypt a .lfv file string and return the parsed vault object.
- * Throws on wrong password or tampered file.
- */
-async function decryptVault(password, fileText) {
-  const lines = fileText.trim().split(/\r?\n/);
+// Decrypt vault ← JSON-armored string
+async function decryptVault(pwd, raw) {
+  let envelope;
+  try { envelope = JSON.parse(raw.trim()); } catch(e) { throw new Error("Invalid vault format."); }
 
-  /* ── Armored format (current) ── */
-  if (lines[0].trim() === LFV_ARMOR_HEADER) {
-    if (lines.length < 2 || !lines[1].trim()) throw new Error("Vault file is truncated or empty.");
-    let bundle;
-    try { bundle = JSON.parse(atob(lines[1].trim())); }
-    catch { throw new Error("Vault file body is corrupt or not valid base64-JSON."); }
-    return await _lfvDecryptBundle(password, bundle);
+  if (envelope.magic !== LFV_MAGIC) throw new Error("Magic header mismatch.");
+  if (envelope.version !== LFV_VERSION) throw new Error("Unsupported vault version.");
+
+  const salt       = new Uint8Array(b64d(envelope.salt_b64));
+  const nonce      = new Uint8Array(b64d(envelope.nonce_b64));
+  const ciphertext = new Uint8Array(b64d(envelope.ciphertext_b64));
+  const storedMac  = new Uint8Array(b64d(envelope.mac_b64));
+
+  const { encKey, macKey } = await deriveKeys(pwd, salt);
+
+  // Verify MAC before decrypting (encrypt-then-MAC)
+  const expectedMac = await computeMac(macKey, LFV_MAGIC, salt, nonce, ciphertext);
+  if (!(await safeCompare(storedMac, expectedMac))) {
+    throw new Error("MAC verification failed — wrong password or corrupted file.");
   }
 
-  /* ── Legacy: plain base64 (old PBKDF2-SHA256 + AES-GCM) ── */
-  /* This path lets users open vaults saved before this upgrade */
-  throw new Error(
-    "This file was created with the old encryption format and cannot be opened here.\n" +
-    "Please open it with the original version of Local Financial Vault."
-  );
-}
-
-async function _lfvDecryptBundle(password, bundle) {
-  /* Validate structure */
-  if (!bundle || bundle.magic !== LFV_MAGIC || bundle.format !== LFV_FORMAT) {
-    throw new Error("Not a Local Financial Vault v2 file.");
-  }
-  if (Number(bundle.version) !== 2) throw new Error("Unsupported vault version.");
-
-  const kdf    = bundle.kdf    || {};
-  const cipher = bundle.cipher || {};
-
-  const iterations = Number(kdf.iterations);
-  const salt       = lfvB64ToBytes(kdf.salt_b64 || "");
-  const nonce      = lfvB64ToBytes(cipher.nonce_b64 || "");
-  const ciphertext = lfvB64ToBytes(bundle.ciphertext_b64 || "");
-  const storedMac  = lfvB64ToBytes(bundle.mac_b64 || "");
-
-  const { encKey, macKey } = await lfvDeriveKeys(password, salt, iterations);
-
-  /* Verify MAC before decrypting (encrypt-then-MAC) */
-  const macInput   = await lfvMacData(bundle, salt, nonce, ciphertext);
-  const computedMac = await lfvHmacSha512(macKey, macInput);
-  if (!lfvEqualBytes(storedMac, computedMac)) {
-    throw new Error("Authentication failed — wrong password or file has been tampered with.");
-  }
-
-  /* Decrypt */
-  const plaintext = await lfvStreamCrypt(ciphertext, encKey, nonce);
-  const parsed    = JSON.parse(new TextDecoder().decode(plaintext));
-  if (!parsed || typeof parsed !== "object") throw new Error("Decrypted data is not a valid vault.");
-  return parsed;
+  const plaintext = await hmacCtrCrypt(encKey, nonce, ciphertext);
+  return JSON.parse(td(plaintext));
 }
 
 /* ============================================================
-  VAULT ACTIONS
+   SAVE VAULT — in-memory or download
+============================================================ */
+function updateSaveIndicator() {
+  const ind = document.getElementById("saveIndicator");
+  if (openedFileHandle || openedFileText !== null) {
+    ind.style.display = "inline";
+    ind.title = openedFileHandle
+      ? "Using File System Access API — saves overwrite the file directly"
+      : "File loaded into memory — saves will re-download to same name";
+  } else {
+    ind.style.display = "none";
+  }
+}
+
+async function doSaveVault(fileName) {
+  vault.metadata.lastModifiedAt = new Date().toISOString();
+  setStatus("🔐 Deriving key (this takes a moment)…");
+  const armored = await encryptVault(vaultPassword); // JSON-armored string
+
+  // 1) File System Access API — overwrite in place
+  if (openedFileHandle) {
+    try {
+      const writable = await openedFileHandle.createWritable();
+      await writable.write(armored);
+      await writable.close();
+      setStatus("Vault saved ✓ (overwritten in place)");
+      return;
+    } catch(e) {
+      // Permission may have been revoked — fall through to download
+      openedFileHandle = null;
+      updateSaveIndicator();
+    }
+  }
+
+  // 2) Fallback: download with the same name
+  const name = fileName || vaultFileName || vault.metadata.name || "vault";
+  const safeFileName = name.replace(/[^a-zA-Z0-9_\-]/g, "_") + ".lfv";
+  const url = URL.createObjectURL(new Blob([armored], {type:"application/json"}));
+  const a = Object.assign(document.createElement("a"), {href:url, download:safeFileName});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus("Vault saved ✓ (" + safeFileName + ")");
+}
+
+async function saveVaultToDisk() {
+  if (!vault || !vaultPassword) { alert("No vault loaded."); return; }
+  try {
+    // If we have an in-memory file or FSAA handle — save directly
+    if (openedFileHandle || vaultFileName) {
+      await doSaveVault();
+      return;
+    }
+    // New vault: prompt for name
+    const nameInput = document.getElementById("saveNameInput");
+    const defaultName = (vault.metadata.name || "vault").replace(/[^a-zA-Z0-9_\-]/g,"_");
+    nameInput.value = defaultName;
+    updateSaveNamePreview();
+    showModal("modalSaveName");
+  } catch(e) { console.error(e); alert("Error saving vault: "+e.message); }
+}
+
+/* ============================================================
+   VAULT ACTIONS
 ============================================================ */
 function lockVault() {
   vault = vaultPassword = pendingOpenFile = null;
+  openedFileHandle = null;
+  openedFileText = null;
+  vaultFileName = null;
   if (autoLockTimer) clearTimeout(autoLockTimer);
   searchQuery = "";
   document.getElementById("searchBox").value = "";
   document.getElementById("searchStatus").textContent = "";
   updateSummary(); renderCurrentTab();
   setStatus("Locked. Create or open a vault.");
-}
-
-async function saveVaultToDisk() {
-  if (!vault || !vaultPassword) { alert("No vault loaded."); return; }
-  try {
-    vault.metadata.lastModifiedAt = new Date().toISOString();
-    showBusy("Encrypting vault…");
-    const armored = await encryptVault(vaultPassword);
-    hideBusy();
-    const filename = "vault-" + new Date().toISOString().replace(/[:.]/g, "-") + ".lfv";
-    const url = URL.createObjectURL(new Blob([armored], { type: "text/plain" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: filename });
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setStatus("Vault saved ✓");
-  } catch (e) {
-    hideBusy();
-    console.error(e);
-    alert("Error saving vault: " + e.message);
-  }
+  updateSaveIndicator();
 }
 
 const showModal = id => { document.getElementById(id).style.display = "flex"; };
 const hideModal = id => { document.getElementById(id).style.display = "none"; };
 
-/* ── Create ── */
+/* Create */
 document.getElementById("btnCreateVault").onclick = () => {
-  document.getElementById("createVaultPassword").value  = "";
+  document.getElementById("createVaultName").value = "";
+  document.getElementById("createVaultPassword").value = "";
   document.getElementById("createVaultPassword2").value = "";
   showModal("modalCreateVault");
 };
-document.getElementById("cancelCreateVault").onclick  = () => hideModal("modalCreateVault");
+
+document.getElementById("cancelCreateVault").onclick = () => hideModal("modalCreateVault");
+
 document.getElementById("confirmCreateVault").onclick = () => {
+  const name = document.getElementById("createVaultName").value.trim() || "vault";
   const p1 = document.getElementById("createVaultPassword").value;
   const p2 = document.getElementById("createVaultPassword2").value;
   if (p1.length < 12) { alert("Password must be at least 12 characters."); return; }
-  if (p1 !== p2)       { alert("Passwords do not match."); return; }
+  if (p1 !== p2) { alert("Passwords do not match."); return; }
   vaultPassword = p1;
-  initEmptyVault();
+  vaultFileName = null; // No file name set until first save
+  openedFileHandle = null;
+  openedFileText = null;
+  initEmptyVault(name);
   updateSummary(); renderCurrentTab(); resetAutoLockTimer();
-  setStatus("New vault created. Remember to save!");
+  setStatus('New vault "' + name + '" created. Remember to save!');
+  updateSaveIndicator();
   hideModal("modalCreateVault");
 };
 
-/* ── Open ── */
+/* Open */
 document.getElementById("vaultFile").addEventListener("change", e => {
   pendingOpenFile = e.target.files[0];
   if (pendingOpenFile) {
@@ -864,99 +1142,354 @@ document.getElementById("vaultFile").addEventListener("change", e => {
   }
   e.target.value = "";
 });
+
 document.getElementById("cancelOpenVault").onclick = () => { pendingOpenFile = null; hideModal("modalOpenVault"); };
+
 document.getElementById("confirmOpenVault").onclick = async () => {
   if (!pendingOpenFile) return;
   const pwd = document.getElementById("openVaultPassword").value;
   if (pwd.length < 12) { alert("Password must be at least 12 characters."); return; }
   hideModal("modalOpenVault");
+  setStatus("🔐 Verifying key & MAC (this takes a moment)…");
   try {
     const text = (await pendingOpenFile.text()).trim();
-    showBusy("Decrypting vault… this may take a few seconds.");
     vault = await decryptVault(pwd, text);
-    hideBusy();
     vaultPassword = pwd;
+    openedFileText = text; // store in memory
+    openedFileHandle = null;
+    // Extract name from metadata or filename
+    vaultFileName = vault.metadata.name || pendingOpenFile.name.replace(/\.lfv$/i,"") || "vault";
     resetAutoLockTimer();
-    setStatus("Vault opened ✓");
+    setStatus('Vault "' + vaultFileName + '" opened ✓');
     updateSummary(); renderCurrentTab();
-  } catch (e) {
-    hideBusy();
-    alert("Unable to decrypt vault:\n" + e.message);
-  }
+    updateSaveIndicator();
+  } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
   pendingOpenFile = null;
 };
 
-/* ── Save / Lock ── */
-document.getElementById("btnSaveVault").onclick  = () => { resetAutoLockTimer(); saveVaultToDisk(); };
-document.getElementById("btnLock").onclick       = () => { if (confirm("Lock and clear vault from memory?")) lockVault(); };
+// Try File System Access API when available (Chromium-based browsers)
+// This allows true in-place overwrite without re-download
+async function tryOpenWithFSAA() {
+  if (!FSAA_SUPPORTED) return;
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: "Local Financial Vault", accept: { "text/plain": [".lfv"] } }],
+      multiple: false
+    });
+    const file = await handle.getFile();
+    pendingOpenFile = file;
+    // store handle — if the user unlocks successfully we'll use it
+    window._pendingFSAAHandle = handle;
+    document.getElementById("openVaultPassword").value = "";
+    showModal("modalOpenVault");
+  } catch(e) { /* user cancelled */ }
+}
 
-/* ── Settings / Change Password ── */
+// Patch confirmOpenVault to also capture handle if available
+const _origConfirmOpen = document.getElementById("confirmOpenVault").onclick;
+document.getElementById("confirmOpenVault").onclick = async () => {
+  if (!pendingOpenFile) return;
+  const pwd = document.getElementById("openVaultPassword").value;
+  if (pwd.length < 12) { alert("Password must be at least 12 characters."); return; }
+  hideModal("modalOpenVault");
+  setStatus("🔐 Verifying key & MAC (this takes a moment)…");
+  try {
+    const text = (await pendingOpenFile.text()).trim();
+    vault = await decryptVault(pwd, text);
+    vaultPassword = pwd;
+    // Capture FSAA handle if available
+    if (window._pendingFSAAHandle) {
+      openedFileHandle = window._pendingFSAAHandle;
+      window._pendingFSAAHandle = null;
+      openedFileText = null;
+    } else {
+      openedFileText = text;
+      openedFileHandle = null;
+    }
+    vaultFileName = vault.metadata.name || pendingOpenFile.name.replace(/\.lfv$/i,"") || "vault";
+    resetAutoLockTimer();
+    setStatus('Vault "' + vaultFileName + '" opened ✓');
+    updateSummary(); renderCurrentTab();
+    updateSaveIndicator();
+  } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
+  pendingOpenFile = null;
+};
+
+/* Save */
+document.getElementById("btnSaveVault").onclick = () => { resetAutoLockTimer(); saveVaultToDisk(); };
+
+/* Save Name modal */
+function updateSaveNamePreview() {
+  const raw = document.getElementById("saveNameInput").value.trim() || "vault";
+  const safe = raw.replace(/[^a-zA-Z0-9_\-]/g,"_");
+  document.getElementById("saveNamePreview").textContent = safe + ".lfv";
+}
+
+document.getElementById("saveNameInput").addEventListener("input", updateSaveNamePreview);
+
+document.getElementById("cancelSaveName").onclick = () => hideModal("modalSaveName");
+
+document.getElementById("confirmSaveName").onclick = async () => {
+  const raw = document.getElementById("saveNameInput").value.trim() || "vault";
+  vaultFileName = raw.replace(/[^a-zA-Z0-9_\-]/g,"_");
+  vault.metadata.name = vaultFileName;
+  hideModal("modalSaveName");
+  try {
+    await doSaveVault(vaultFileName);
+    updateSaveIndicator();
+  } catch(e) { console.error(e); alert("Error saving vault: "+e.message); }
+};
+
+/* Lock */
+document.getElementById("btnLock").onclick = () => { if (confirm("Lock and clear vault from memory?")) lockVault(); };
+
+/* Settings */
 document.getElementById("btnSettings").onclick = () => {
   if (!vault) { alert("Open a vault first."); return; }
   resetAutoLockTimer();
   ["oldPassword","newPassword","newPassword2"].forEach(id => document.getElementById(id).value = "");
-  showModal("modalChangePassword");
+  showModal("modalSettings");
 };
-document.getElementById("cancelChangePassword").onclick  = () => hideModal("modalChangePassword");
+
+document.getElementById("cancelSettings").onclick = () => hideModal("modalSettings");
+
 document.getElementById("confirmChangePassword").onclick = async () => {
-  const op  = document.getElementById("oldPassword").value;
-  const np  = document.getElementById("newPassword").value;
+  const op = document.getElementById("oldPassword").value;
+  const np = document.getElementById("newPassword").value;
   const np2 = document.getElementById("newPassword2").value;
-  if (op  !== vaultPassword) { alert("Current password is incorrect."); return; }
-  if (np.length < 12)        { alert("New password must be at least 12 characters."); return; }
-  if (np !== np2)            { alert("New passwords do not match."); return; }
+  if (op !== vaultPassword) { alert("Current password is incorrect."); return; }
+  if (np.length < 12) { alert("New password must be at least 12 characters."); return; }
+  if (np !== np2) { alert("New passwords do not match."); return; }
   vaultPassword = np;
-  hideModal("modalChangePassword");
-  await saveVaultToDisk();
+  await doSaveVault();
+  hideModal("modalSettings");
   setStatus("Password changed and vault re-saved ✓");
 };
 
 /* ============================================================
-  TOTALS
+   EXPORT
+============================================================ */
+const EXPORT_CATEGORIES = [
+  { key: "bankAccounts",       label: "🏦 Bank Accounts" },
+  { key: "creditCards",        label: "💳 Credit Cards" },
+  { key: "retirementAccounts", label: "🏖 Retirement Accounts" },
+  { key: "stocks",             label: "📈 Stocks" },
+  { key: "crypto",             label: "₿ Crypto" },
+  { key: "otherAssets",        label: "🏠 Other Assets" },
+  { key: "debts",              label: "📉 Debts" },
+  { key: "snapshots",          label: "📊 Snapshots" }
+];
+
+function buildExportCategoryList() {
+  const container = document.getElementById("exportCategoryList");
+  container.innerHTML = EXPORT_CATEGORIES.map(c =>
+    `<label>
+      <input type="checkbox" class="export-cat-cb" data-key="${c.key}" checked>
+      ${c.label}
+    </label>`
+  ).join("");
+}
+
+document.getElementById("btnExport").onclick = () => {
+  if (!vault) { alert("Open a vault first."); return; }
+  buildExportCategoryList();
+  showModal("modalExport");
+};
+
+document.getElementById("cancelExport").onclick = () => hideModal("modalExport");
+
+// Format tab switching
+document.querySelectorAll(".export-format-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".export-format-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    exportFormat = tab.dataset.fmt;
+  });
+});
+
+// Select all / none
+document.getElementById("exportSelectAll").onclick = () => {
+  document.querySelectorAll(".export-cat-cb").forEach(cb => cb.checked = true);
+};
+document.getElementById("exportSelectNone").onclick = () => {
+  document.querySelectorAll(".export-cat-cb").forEach(cb => cb.checked = false);
+};
+
+document.getElementById("confirmExport").onclick = () => {
+  const selected = Array.from(document.querySelectorAll(".export-cat-cb:checked")).map(cb => cb.dataset.key);
+  if (selected.length === 0) { alert("Select at least one category."); return; }
+  hideModal("modalExport");
+  switch (exportFormat) {
+    case "csv":  exportCSV(selected);  break;
+    case "json": exportJSON(selected); break;
+    case "pdf":  exportPDF(selected);  break;
+  }
+};
+
+function getExportData(selected) {
+  const data = {};
+  selected.forEach(key => {
+    if (key === "snapshots") {
+      data.snapshots = vault.snapshots || [];
+    } else {
+      data[key] = vault.accounts[key] || [];
+    }
+  });
+  return data;
+}
+
+function triggerDownload(content, filename, mime) {
+  const url = URL.createObjectURL(new Blob([content], {type: mime}));
+  const a = Object.assign(document.createElement("a"), {href: url, download: filename});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportJSON(selected) {
+  const data = getExportData(selected);
+  const name = (vaultFileName || "vault") + "-export-" + new Date().toISOString().slice(0,10) + ".json";
+  triggerDownload(JSON.stringify(data, null, 2), name, "application/json");
+}
+
+function exportCSV(selected) {
+  const data = getExportData(selected);
+  let csv = "";
+
+  Object.entries(data).forEach(([catKey, rows]) => {
+    if (!rows || rows.length === 0) return;
+    const label = CATEGORY_LABELS[catKey] || catKey;
+    csv += `\n=== ${label} ===\n`;
+
+    if (catKey === "snapshots") {
+      csv += "Timestamp,Total Assets,Total Debts,Net Worth\n";
+      rows.forEach(r => {
+        csv += [
+          JSON.stringify(new Date(r.timestamp).toLocaleString()),
+          r.totalAssets, r.totalDebts, r.netWorth
+        ].join(",") + "\n";
+      });
+    } else {
+      const schema = SCHEMAS[catKey];
+      if (!schema) return;
+      csv += schema.map(f => JSON.stringify(f.label)).join(",") + "\n";
+      rows.forEach(r => {
+        csv += schema.map(f => JSON.stringify(r[f.key] ?? "")).join(",") + "\n";
+      });
+    }
+  });
+
+  const name = (vaultFileName || "vault") + "-export-" + new Date().toISOString().slice(0,10) + ".csv";
+  triggerDownload(csv.trim(), name, "text/csv");
+}
+
+function exportPDF(selected) {
+  const data = getExportData(selected);
+  const ts = new Date().toLocaleString();
+  const vname = vaultFileName || vault.metadata.name || "vault";
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${vname} Export</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 10pt; color: #111; margin: 2cm; }
+  h1 { font-size: 16pt; margin-bottom: 4px; }
+  h2 { font-size: 12pt; border-bottom: 1px solid #999; padding-bottom: 3px; margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 9pt; }
+  th { background: #f0f0f0; border: 1px solid #ccc; padding: 4px 6px; text-align: left; }
+  td { border: 1px solid #ddd; padding: 3px 6px; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .meta { color: #666; font-size: 9pt; margin-bottom: 16px; }
+  .empty { color: #999; font-style: italic; }
+</style>
+</head><body>
+<h1>🔐 Local Financial Vault Export</h1>
+<p class="meta">Vault: <strong>${vname}</strong> &nbsp;|&nbsp; Exported: ${ts}</p>`;
+
+  Object.entries(data).forEach(([catKey, rows]) => {
+    const label = CATEGORY_LABELS[catKey] || catKey;
+    html += `<h2>${label}</h2>`;
+
+    if (!rows || rows.length === 0) {
+      html += `<p class="empty">No entries.</p>`;
+      return;
+    }
+
+    if (catKey === "snapshots") {
+      html += `<table><thead><tr><th>Timestamp</th><th>Total Assets</th><th>Total Debts</th><th>Net Worth</th></tr></thead><tbody>`;
+      rows.forEach(r => {
+        html += `<tr><td>${new Date(r.timestamp).toLocaleString()}</td><td>${formatMoney(r.totalAssets)}</td><td>${formatMoney(r.totalDebts)}</td><td>${formatMoney(r.netWorth)}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+    } else {
+      const schema = SCHEMAS[catKey];
+      if (!schema) return;
+      const visible = schema.filter(f => f.key !== "notes");
+      html += `<table><thead><tr>${visible.map(f=>`<th>${f.label}</th>`).join("")}</tr></thead><tbody>`;
+      rows.forEach(r => {
+        html += `<tr>${visible.map(f => {
+          let v = r[f.key] ?? "";
+          if (f.type === "number" && v !== "") {
+            const n = Number(v);
+            if (!isNaN(n)) v = (f.key === "interestRate" || f.key === "apr") ? n.toFixed(2)+"%" : formatMoney(n);
+          }
+          return `<td>${escapeHtml(String(v))}</td>`;
+        }).join("")}</tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+  });
+
+  html += `</body></html>`;
+
+  // Open in a new window and trigger print dialog (browser will offer Save as PDF)
+  const win = window.open("", "_blank");
+  if (!win) { alert("Please allow popups for PDF export."); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 600);
+}
+
+/* ============================================================
+   TOTALS
 ============================================================ */
 function calcTotals() {
   let assets = 0, debts = 0;
   if (!vault) return { assets, debts };
   const a = vault.accounts;
-  a.bankAccounts.forEach(x      => assets += Number(x.balance)          || 0);
-  a.retirementAccounts.forEach(x => assets += Number(x.currentBalance)  || 0);
-  a.stocks.forEach(x             => assets += (Number(x.shares) || 0) * (Number(x.currentPrice) || 0));
-  a.crypto.forEach(x             => assets += (Number(x.quantity) || 0) * (Number(x.currentPrice) || 0));
-  a.otherAssets.forEach(x        => assets += Number(x.estimatedValue)  || 0);
-  a.debts.forEach(x              => debts  += Number(x.balance)         || 0);
+  a.bankAccounts.forEach(x => assets += Number(x.balance) || 0);
+  a.retirementAccounts.forEach(x => assets += Number(x.currentBalance) || 0);
+  a.stocks.forEach(x => assets += (Number(x.shares)||0)*(Number(x.currentPrice)||0));
+  a.crypto.forEach(x => assets += (Number(x.quantity)||0)*(Number(x.currentPrice)||0));
+  a.otherAssets.forEach(x => assets += Number(x.estimatedValue) || 0);
+  a.debts.forEach(x => debts += Number(x.balance) || 0);
   return { assets, debts };
 }
 
 function assetsByCategory() {
   if (!vault) return {};
   const a = vault.accounts;
-  let bank = 0, retire = 0, stock = 0, cry = 0, other = 0;
-  a.bankAccounts.forEach(x       => bank   += Number(x.balance)         || 0);
-  a.retirementAccounts.forEach(x => retire += Number(x.currentBalance)  || 0);
-  a.stocks.forEach(x             => stock  += (Number(x.shares) || 0)   * (Number(x.currentPrice) || 0));
-  a.crypto.forEach(x             => cry    += (Number(x.quantity) || 0) * (Number(x.currentPrice) || 0));
-  a.otherAssets.forEach(x        => other  += Number(x.estimatedValue)  || 0);
-  return { "Bank": bank, "Retirement": retire, "Stocks": stock, "Crypto": cry, "Other Assets": other };
+  let bank=0, retire=0, stock=0, cry=0, other=0;
+  a.bankAccounts.forEach(x => bank += Number(x.balance)||0);
+  a.retirementAccounts.forEach(x => retire += Number(x.currentBalance)||0);
+  a.stocks.forEach(x => stock += (Number(x.shares)||0)*(Number(x.currentPrice)||0));
+  a.crypto.forEach(x => cry += (Number(x.quantity)||0)*(Number(x.currentPrice)||0));
+  a.otherAssets.forEach(x => other += Number(x.estimatedValue)||0);
+  return {"Bank":bank,"Retirement":retire,"Stocks":stock,"Crypto":cry,"Other Assets":other};
 }
 
 function updateSummary() {
   const { assets, debts } = calcTotals();
-  document.getElementById("summaryAssets").textContent  = formatMoney(assets);
-  document.getElementById("summaryDebts").textContent   = formatMoney(debts);
+  document.getElementById("summaryAssets").textContent = formatMoney(assets);
+  document.getElementById("summaryDebts").textContent = formatMoney(debts);
   document.getElementById("summaryNetWorth").textContent = formatMoney(assets - debts);
 }
 
-/* ── Snapshot record ── */
+/* Snapshot record */
 document.getElementById("btnRecordSnapshot").onclick = () => {
   if (!vault) { alert("Vault is locked."); return; }
   resetAutoLockTimer();
   const { assets, debts } = calcTotals();
-  vault.snapshots.push({
-    timestamp:   new Date().toISOString(),
-    totalAssets: assets,
-    totalDebts:  debts,
-    netWorth:    assets - debts
-  });
+  vault.snapshots.push({timestamp:new Date().toISOString(),totalAssets:assets,totalDebts:debts,netWorth:assets-debts});
   vault.metadata.lastModifiedAt = new Date().toISOString();
   updateSummary();
   if (currentTab === "snapshots") renderCurrentTab();
@@ -964,15 +1497,13 @@ document.getElementById("btnRecordSnapshot").onclick = () => {
 };
 
 /* ============================================================
-  TABS / SEARCH
+   TABS / SEARCH
 ============================================================ */
 document.getElementById("tabs").addEventListener("click", e => {
   const tab = e.target.closest(".tab");
   if (!tab) return;
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  tab.classList.add("active");
-  currentTab = tab.dataset.tab;
-  renderCurrentTab();
+  tab.classList.add("active"); currentTab = tab.dataset.tab; renderCurrentTab();
 });
 
 document.getElementById("searchBox").addEventListener("input", e => {
@@ -983,7 +1514,7 @@ document.getElementById("searchBox").addEventListener("input", e => {
 });
 
 /* ============================================================
-  RENDER DISPATCH
+   RENDER DISPATCH
 ============================================================ */
 function renderCurrentTab() {
   const c = document.getElementById("tabContent");
@@ -995,14 +1526,14 @@ function renderCurrentTab() {
 }
 
 /* ============================================================
-  RENDER CATEGORY TABLE
+   RENDER CATEGORY TABLE
 ============================================================ */
 function renderCategory(container, category) {
   const schema = SCHEMAS[category];
-  if (!schema) { container.innerHTML = ""; return; }
+  if (!schema) { container.innerHTML=""; return; }
   const allRows = vault.accounts[category] || [];
   const rows = searchQuery
-    ? allRows.filter(row => schema.some(f => String(row[f.key] ?? "").toLowerCase().includes(searchQuery)))
+    ? allRows.filter(row => schema.some(f => String(row[f.key]??"").toLowerCase().includes(searchQuery)))
     : allRows;
 
   let html = `<div class="controls">
@@ -1011,7 +1542,7 @@ function renderCategory(container, category) {
   </div>`;
 
   if (rows.length === 0) {
-    html += `<p class="empty-state">${searchQuery ? "No results match your search." : "No entries yet. Click ＋ Add to begin."}</p>`;
+    html += `<p class="empty-state">${searchQuery?"No results match your search.":"No entries yet. Click ＋ Add to begin."}</p>`;
     container.innerHTML = html; return;
   }
 
@@ -1022,32 +1553,33 @@ function renderCategory(container, category) {
 
   rows.forEach(row => {
     const ri = allRows.indexOf(row);
-    html += `<tr title="${escapeHtml(row.notes ?? "")}">`;
+    html += `<tr title="${escapeHtml(row.notes??"")}">`;
     visible.forEach(f => {
       let val = row[f.key] ?? "";
       if (f.type === "number" && val !== "") {
         const n = Number(val);
-        if (!isNaN(n)) val = (f.key === "interestRate" || f.key === "apr") ? n.toFixed(2) + "%" : formatMoney(n);
+        if (!isNaN(n)) val = (f.key==="interestRate"||f.key==="apr") ? n.toFixed(2)+"%" : formatMoney(n);
       }
-      html += `<td>${highlightText(String(val), searchQuery)}</td>`;
+      html += `<td>${highlightText(String(val),searchQuery)}</td>`;
     });
     html += `<td class="actions">
       <button class="edit-btn" onclick="openEditModal('${category}',${ri})">Edit</button>
-      <button class="dup-btn"  onclick="duplicateEntry('${category}',${ri})">Dup</button>
-      <button class="del-btn"  onclick="deleteEntry('${category}',${ri})">Del</button>
+      <button class="dup-btn" onclick="duplicateEntry('${category}',${ri})">Dup</button>
+      <button class="del-btn" onclick="deleteEntry('${category}',${ri})">Del</button>
     </td></tr>`;
   });
+
   html += `</tbody></table>`;
   container.innerHTML = html;
 }
 
 /* ============================================================
-  RENDER SNAPSHOTS
+   RENDER SNAPSHOTS (charts + table)
 ============================================================ */
 function renderSnapshots(container) {
-  const snaps    = vault.snapshots || [];
+  const snaps = vault.snapshots || [];
   const filtered = searchQuery
-    ? snaps.filter(s => s.timestamp.toLowerCase().includes(searchQuery) || String(s.netWorth).includes(searchQuery))
+    ? snaps.filter(s => s.timestamp.toLowerCase().includes(searchQuery)||String(s.netWorth).includes(searchQuery))
     : snaps;
   const rev = [...filtered].reverse();
 
@@ -1070,7 +1602,7 @@ function renderSnapshots(container) {
   <div class="controls"><span class="status">${filtered.length} snapshot(s)</span></div>`;
 
   if (rev.length === 0) {
-    html += `<p class="empty-state">${searchQuery ? "No results." : "No snapshots yet. Use the sidebar button."}</p>`;
+    html += `<p class="empty-state">${searchQuery?"No results.":"No snapshots yet. Use the sidebar button."}</p>`;
   } else {
     html += `<table><thead><tr>
       <th>Timestamp</th><th>Total Assets</th><th>Total Debts</th><th>Net Worth</th><th>Actions</th>
@@ -1078,7 +1610,7 @@ function renderSnapshots(container) {
     rev.forEach(s => {
       const ri = snaps.indexOf(s);
       html += `<tr>
-        <td>${highlightText(new Date(s.timestamp).toLocaleString(), searchQuery)}</td>
+        <td>${highlightText(new Date(s.timestamp).toLocaleString(),searchQuery)}</td>
         <td>${formatMoney(s.totalAssets)}</td>
         <td>${formatMoney(s.totalDebts)}</td>
         <td>${formatMoney(s.netWorth)}</td>
@@ -1087,12 +1619,17 @@ function renderSnapshots(container) {
     });
     html += `</tbody></table>`;
   }
+
   container.innerHTML = html;
-  requestAnimationFrame(() => { drawLineChart(snaps); drawBarChart(); drawPieChart(); });
+  requestAnimationFrame(() => {
+    drawLineChart(snaps);
+    drawBarChart();
+    drawPieChart();
+  });
 }
 
 /* ============================================================
-  CHARTS — pure Canvas, no external libs
+   CHARTS — pure Canvas
 ============================================================ */
 const PALETTE = ["#3fa9f5","#2ecc71","#e74c3c","#f39c12","#9b59b6","#1abc9c","#e67e22","#e91e63"];
 
@@ -1101,10 +1638,10 @@ function initCanvas(id, H) {
   if (!el) return null;
   const ctx = el.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const W   = el.parentElement.clientWidth || 300;
-  el.width  = W * dpr; el.height = H * dpr;
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, W, H);
+  const W = el.parentElement.clientWidth || 300;
+  el.width = W*dpr; el.height = H*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
   return { ctx, W, H };
 }
 
@@ -1112,176 +1649,165 @@ function drawLineChart(snaps) {
   const C = initCanvas("chartNetWorth", 180);
   if (!C) return;
   const { ctx, W, H } = C;
-  const PAD = { t: 20, r: 20, b: 38, l: 72 };
-  const cw = W - PAD.l - PAD.r, ch = H - PAD.t - PAD.b;
-  if (!snaps.length) {
-    ctx.fillStyle = "#555"; ctx.font = "12px system-ui"; ctx.textAlign = "left";
-    ctx.fillText("Record snapshots to populate this chart.", PAD.l, H / 2); return;
+  const PAD = { t:20, r:20, b:38, l:72 };
+  const cw = W-PAD.l-PAD.r, ch = H-PAD.t-PAD.b;
+  const gridCol = getComputedStyle(document.documentElement).getPropertyValue("--grid-line").trim() || "#252525";
+  const mutedCol = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#888";
+
+  if (snaps.length === 0) {
+    ctx.fillStyle = mutedCol; ctx.font = "12px system-ui"; ctx.textAlign = "left";
+    ctx.fillText("Record snapshots to populate this chart.", PAD.l, H/2); return;
   }
-  const vals  = snaps.map(s => s.netWorth);
+
+  const vals = snaps.map(s => s.netWorth);
   const times = snaps.map(s => new Date(s.timestamp).getTime());
-  const minV = Math.min(...vals), maxV = Math.max(...vals), rangeV = (maxV - minV) || 1;
-  const minT = Math.min(...times), maxT = Math.max(...times), rangeT = (maxT - minT) || 1;
-  const toX = t => PAD.l + ((t - minT) / rangeT) * cw;
-  const toY = v => PAD.t + (1 - (v - minV) / rangeV) * ch;
+  const minV=Math.min(...vals), maxV=Math.max(...vals), rangeV=(maxV-minV)||1;
+  const minT=Math.min(...times), maxT=Math.max(...times), rangeT=(maxT-minT)||1;
+  const toX = t => PAD.l+((t-minT)/rangeT)*cw;
+  const toY = v => PAD.t+(1-(v-minV)/rangeV)*ch;
 
-  ctx.strokeStyle = "#252525"; ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = PAD.t + (ch / 4) * i;
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
-    ctx.fillStyle = "#555"; ctx.font = "10px system-ui"; ctx.textAlign = "right";
-    ctx.fillText(formatMoney(maxV - (rangeV / 4) * i), PAD.l - 4, y + 3);
+  ctx.strokeStyle = gridCol; ctx.lineWidth=1;
+  for (let i=0; i<=4; i++) {
+    const y = PAD.t+(ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(W-PAD.r,y); ctx.stroke();
+    ctx.fillStyle = mutedCol; ctx.font = "10px system-ui"; ctx.textAlign = "right";
+    ctx.fillText(formatMoney(maxV-(rangeV/4)*i), PAD.l-4, y+3);
   }
 
-  const grad = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + ch);
-  grad.addColorStop(0, "rgba(63,169,245,0.22)"); grad.addColorStop(1, "rgba(63,169,245,0)");
-  ctx.fillStyle = grad; ctx.beginPath();
-  ctx.moveTo(toX(times[0]), PAD.t + ch);
+  const grad = ctx.createLinearGradient(0, PAD.t, 0, PAD.t+ch);
+  grad.addColorStop(0,"rgba(63,169,245,0.22)");
+  grad.addColorStop(1,"rgba(63,169,245,0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(toX(times[0]), PAD.t+ch);
   snaps.forEach(s => ctx.lineTo(toX(new Date(s.timestamp).getTime()), toY(s.netWorth)));
-  ctx.lineTo(toX(times[times.length - 1]), PAD.t + ch); ctx.closePath(); ctx.fill();
+  ctx.lineTo(toX(times[times.length-1]), PAD.t+ch);
+  ctx.closePath(); ctx.fill();
 
-  ctx.strokeStyle = "#3fa9f5"; ctx.lineWidth = 2; ctx.beginPath();
-  snaps.forEach((s, i) => {
-    const x = toX(new Date(s.timestamp).getTime()), y = toY(s.netWorth);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  ctx.strokeStyle="#3fa9f5"; ctx.lineWidth=2;
+  ctx.beginPath();
+  snaps.forEach((s,i) => {
+    const x=toX(new Date(s.timestamp).getTime()), y=toY(s.netWorth);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
   }); ctx.stroke();
 
   snaps.forEach(s => {
-    const x = toX(new Date(s.timestamp).getTime()), y = toY(s.netWorth);
-    ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = "#3fa9f5"; ctx.fill();
-    ctx.strokeStyle = "#111"; ctx.lineWidth = 1; ctx.stroke();
+    const x=toX(new Date(s.timestamp).getTime()), y=toY(s.netWorth);
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle="#3fa9f5"; ctx.fill();
+    ctx.strokeStyle="#111"; ctx.lineWidth=1; ctx.stroke();
   });
 
-  ctx.fillStyle = "#555"; ctx.font = "10px system-ui"; ctx.textAlign = "center";
+  ctx.fillStyle=mutedCol; ctx.font="10px system-ui"; ctx.textAlign="center";
   const fmtD = t => new Date(t).toLocaleDateString();
-  ctx.fillText(fmtD(minT), toX(minT), H - PAD.b + 14);
-  if (snaps.length > 1) ctx.fillText(fmtD(maxT), toX(maxT), H - PAD.b + 14);
+  ctx.fillText(fmtD(minT), toX(minT), H-PAD.b+14);
+  if (snaps.length>1) ctx.fillText(fmtD(maxT), toX(maxT), H-PAD.b+14);
 }
 
 function drawBarChart() {
   const C = initCanvas("chartAssetsDebts", 200);
   if (!C) return;
   const { ctx, W, H } = C;
-  const PAD = { t: 20, r: 20, b: 30, l: 72 };
-  const cw = W - PAD.l - PAD.r, ch = H - PAD.t - PAD.b;
+  const PAD = { t:20, r:20, b:30, l:72 };
+  const cw = W-PAD.l-PAD.r, ch = H-PAD.t-PAD.b;
+  const gridCol = getComputedStyle(document.documentElement).getPropertyValue("--grid-line").trim() || "#252525";
+  const mutedCol = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#888";
   const { assets, debts } = calcTotals();
   const maxV = Math.max(assets, debts, 1);
-  const bars = [{ label:"Assets", value:assets, color:"#2ecc71" }, { label:"Debts", value:debts, color:"#e74c3c" }];
-  const barW = Math.min(55, (cw / 2) - 10);
+  const bars = [{ label:"Assets", value:assets, color:"#2ecc71" },{ label:"Debts", value:debts, color:"#e74c3c" }];
+  const barW = Math.min(55,(cw/2)-10);
 
-  ctx.strokeStyle = "#252525"; ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = PAD.t + (ch / 4) * i;
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
-    ctx.fillStyle = "#555"; ctx.font = "10px system-ui"; ctx.textAlign = "right";
-    ctx.fillText(formatMoney(maxV * (1 - i / 4)), PAD.l - 4, y + 3);
+  ctx.strokeStyle = gridCol; ctx.lineWidth=1;
+  for (let i=0; i<=4; i++) {
+    const y = PAD.t+(ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(W-PAD.r,y); ctx.stroke();
+    ctx.fillStyle=mutedCol; ctx.font="10px system-ui"; ctx.textAlign="right";
+    ctx.fillText(formatMoney(maxV*(1-i/4)), PAD.l-4, y+3);
   }
-  bars.forEach((b, i) => {
-    const bh = (b.value / maxV) * ch;
-    const x  = PAD.l + (cw / 2) * i + (cw / 2 - barW) / 2;
-    const y  = PAD.t + ch - bh;
+
+  bars.forEach((b,i) => {
+    const bh = (b.value/maxV)*ch;
+    const x = PAD.l+(cw/2)*i+(cw/2-barW)/2;
+    const y = PAD.t+ch-bh;
     ctx.fillStyle = b.color;
-    ctx.beginPath(); ctx.roundRect(x, y, barW, bh, 3); ctx.fill();
-    ctx.fillStyle = "#aaa"; ctx.font = "10px system-ui"; ctx.textAlign = "center";
-    ctx.fillText(b.label, x + barW / 2, H - PAD.b + 14);
+    ctx.beginPath(); ctx.roundRect(x,y,barW,bh,3); ctx.fill();
+    ctx.fillStyle = "#aaa"; ctx.font="10px system-ui"; ctx.textAlign="center";
+    ctx.fillText(b.label, x+barW/2, H-PAD.b+14);
   });
+
   const leg = document.getElementById("legendAD");
-  if (leg) leg.innerHTML = bars.map(b =>
-    `<span><span class="legend-swatch" style="background:${b.color}"></span>${b.label}: ${formatMoney(b.value)}</span>`
-  ).join("");
+  if (leg) leg.innerHTML = bars.map(b=>`<span><span class="legend-swatch" style="background:${b.color}"></span>${b.label}: ${formatMoney(b.value)}</span>`).join("");
 }
 
 function drawPieChart() {
   const C = initCanvas("chartByCategory", 200);
   if (!C) return;
   const { ctx, W, H } = C;
-  ctx.clearRect(0, 0, W, H);
-  const cats    = assetsByCategory();
-  const entries = Object.entries(cats).filter(([, v]) => v > 0);
-  const total   = entries.reduce((s, [, v]) => s + v, 0);
-  if (!total) {
-    ctx.fillStyle = "#555"; ctx.font = "12px system-ui"; ctx.textAlign = "center";
-    ctx.fillText("No asset data yet.", W / 2, H / 2); return;
+  ctx.clearRect(0,0,W,H);
+  const cats = assetsByCategory();
+  const entries = Object.entries(cats).filter(([,v]) => v > 0);
+  const total = entries.reduce((s,[,v]) => s+v, 0);
+  const mutedCol = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#888";
+
+  if (total === 0) {
+    ctx.fillStyle=mutedCol; ctx.font="12px system-ui"; ctx.textAlign="center";
+    ctx.fillText("No asset data yet.", W/2, H/2); return;
   }
-  const cx = W / 2, cy = H / 2, r = Math.min(cx, cy) - 12;
-  let angle = -Math.PI / 2;
-  entries.forEach(([, v], i) => {
-    const slice = (v / total) * 2 * Math.PI;
-    ctx.fillStyle = PALETTE[i % PALETTE.length];
-    ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, angle, angle + slice); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = "#111"; ctx.lineWidth = 1.5; ctx.stroke();
+
+  const cx=W/2, cy=H/2, r=Math.min(cx,cy)-12;
+  let angle = -Math.PI/2;
+  entries.forEach(([,v],i) => {
+    const slice = (v/total)*2*Math.PI;
+    ctx.fillStyle = PALETTE[i%PALETTE.length];
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "#111"; ctx.lineWidth=1.5; ctx.stroke();
     angle += slice;
   });
+
   const leg = document.getElementById("legendCat");
-  if (leg) leg.innerHTML = entries.map(([k, v], i) =>
-    `<span><span class="legend-swatch" style="background:${PALETTE[i % PALETTE.length]}"></span>${k}: ${formatMoney(v)}</span>`
-  ).join("");
+  if (leg) leg.innerHTML = entries.map(([k,v],i)=>`<span><span class="legend-swatch" style="background:${PALETTE[i%PALETTE.length]}"></span>${k}: ${formatMoney(v)}</span>`).join("");
 }
 
 /* ============================================================
-  DELETE
+   DELETE
 ============================================================ */
 function deleteEntry(category, index) {
   if (!confirm("Delete this entry?")) return;
-  vault.accounts[category].splice(index, 1);
+  vault.accounts[category].splice(index,1);
   vault.metadata.lastModifiedAt = new Date().toISOString();
   updateSummary(); renderCurrentTab(); setStatus("Entry deleted."); resetAutoLockTimer();
 }
+
 function deleteSnapshot(index) {
   if (!confirm("Delete this snapshot?")) return;
-  vault.snapshots.splice(index, 1);
+  vault.snapshots.splice(index,1);
   vault.metadata.lastModifiedAt = new Date().toISOString();
   renderCurrentTab(); setStatus("Snapshot deleted."); resetAutoLockTimer();
 }
 
 /* ============================================================
-  DUPLICATE ENTRY
+   DUPLICATE ENTRY
 ============================================================ */
 function duplicateEntry(category, index) {
   if (!vault) return;
   resetAutoLockTimer();
   const clone = JSON.parse(JSON.stringify(vault.accounts[category][index]));
   currentEdit = { category, index: null };
-  document.getElementById("modalTitle").textContent = "Duplicate " + CATEGORY_LABELS[category].replace(/s$/, "");
+  document.getElementById("modalTitle").textContent = "Duplicate " + CATEGORY_LABELS[category].replace(/s$/,"");
   document.getElementById("entryForm").innerHTML = buildForm(SCHEMAS[category], clone);
   showModal("modalBackdrop");
 }
 
 /* ============================================================
-  ADD / EDIT MODALS
+   ADD / EDIT MODAL
 ============================================================ */
-function buildForm(schema, data = {}) {
-  return schema.map(f => {
-    const val = escapeHtml(String(data[f.key] ?? ""));
-    if (f.type === "textarea") {
-      return `<label>${escapeHtml(f.label)}</label>
-              <textarea id="field_${f.key}">${val}</textarea>`;
-    }
-    if (f.type === "number") {
-      return `<label>${escapeHtml(f.label)}</label>
-              <input type="number" id="field_${f.key}" step="any" value="${val}">`;
-    }
-    return `<label>${escapeHtml(f.label)}</label>
-            <input type="text" id="field_${f.key}" value="${val}">`;
-  }).join("");
-}
-
-function readForm(schema) {
-  const out = {};
-  schema.forEach(f => {
-    const el = document.getElementById("field_" + f.key);
-    out[f.key] = el ? el.value : "";
-  });
-  return out;
-}
-
 function openAddModal(category) {
   if (!vault) return;
   resetAutoLockTimer();
   currentEdit = { category, index: null };
-  document.getElementById("modalTitle").textContent = "Add " + CATEGORY_LABELS[category].replace(/s$/, "");
+  document.getElementById("modalTitle").textContent = "Add " + CATEGORY_LABELS[category].replace(/s$/,"");
   document.getElementById("entryForm").innerHTML = buildForm(SCHEMAS[category], {});
   showModal("modalBackdrop");
 }
@@ -1290,35 +1816,49 @@ function openEditModal(category, index) {
   if (!vault) return;
   resetAutoLockTimer();
   currentEdit = { category, index };
-  document.getElementById("modalTitle").textContent = "Edit " + CATEGORY_LABELS[category].replace(/s$/, "");
-  document.getElementById("entryForm").innerHTML = buildForm(SCHEMAS[category], vault.accounts[category][index] || {});
+  document.getElementById("modalTitle").textContent = "Edit " + CATEGORY_LABELS[category].replace(/s$/,"");
+  document.getElementById("entryForm").innerHTML = buildForm(SCHEMAS[category], vault.accounts[category][index]);
   showModal("modalBackdrop");
 }
 
+function buildForm(schema, data) {
+  return schema.map(f => {
+    const val = escapeHtml(data[f.key] ?? "");
+    if (f.type === "textarea") {
+      return `<label>${f.label}</label><textarea name="${f.key}">${val}</textarea>`;
+    }
+    return `<label>${f.label}</label><input type="${f.type === "number" ? "number" : "text"}" name="${f.key}" value="${val}" step="any">`;
+  }).join("");
+}
+
 document.getElementById("btnCancelModal").onclick = () => hideModal("modalBackdrop");
-document.getElementById("btnSaveModal").onclick   = () => {
+
+document.getElementById("btnSaveModal").onclick = () => {
+  if (!vault) return;
+  resetAutoLockTimer();
   const { category, index } = currentEdit;
-  if (!category || !vault) return;
-  const data = readForm(SCHEMAS[category]);
+  const schema = SCHEMAS[category];
+  const form = document.getElementById("entryForm");
+  const entry = {};
+  schema.forEach(f => {
+    const el = form.querySelector(`[name="${f.key}"]`);
+    entry[f.key] = el ? el.value : "";
+  });
+
   if (index === null) {
-    vault.accounts[category].push(data);
+    vault.accounts[category].push(entry);
   } else {
-    vault.accounts[category][index] = data;
+    vault.accounts[category][index] = entry;
   }
+
   vault.metadata.lastModifiedAt = new Date().toISOString();
+  updateSummary(); renderCurrentTab();
+  setStatus((index === null ? "Entry added." : "Entry updated."));
   hideModal("modalBackdrop");
-  updateSummary(); renderCurrentTab(); resetAutoLockTimer();
 };
 
 /* ============================================================
-  ACTIVITY LISTENERS FOR AUTO-LOCK RESET
-============================================================ */
-["mousemove","keydown","click","scroll","touchstart"].forEach(evt =>
-  document.addEventListener(evt, () => { if (vault) resetAutoLockTimer(); }, { passive: true })
-);
-
-/* ============================================================
-  INITIAL RENDER
+   INIT
 ============================================================ */
 renderCurrentTab();
 updateSummary();
