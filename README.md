@@ -10,7 +10,7 @@
 
 ### 🔐 Secure Encrypted Vault (V2 Format)
 
-- Create a new vault protected by a **master password** (minimum 12 characters).
+- Create a new vault protected by a **master password** (minimum 12 characters recommended).
 - Vaults are encrypted using the **LOCALFINANCIALVAULT-V2** format — a hardened scheme inspired by [Arculus Recovery](https://github.com/Scrince/Arculus_Recovery):
   - **PBKDF2-HMAC-SHA512** with **1,000,000 iterations** for key derivation
   - **Domain-separated keys** — a dedicated encryption key and a separate authentication key, each derived via HMAC from the master key material
@@ -29,6 +29,7 @@
 - Opening a vault replaces all in-memory data.
 - Automatic lock after **10 minutes of inactivity**.
 - Manual lock/clear at any time.
+- **Unsaved changes banner** — an amber warning banner appears whenever there are unsaved changes, with a one-click **Save Now** shortcut. Closing or refreshing the tab with unsaved changes triggers the browser's "Leave site?" confirmation.
 
 ### 🧾 Structured Financial Data
 
@@ -36,15 +37,23 @@ Manage entries across all major financial categories:
 
 | Category | Key Fields |
 |---|---|
-| **Bank Accounts** | Institution, type, account #, routing #, balance, PIN, notes |
-| **Credit Cards** | Issuer, card #, expiry, CVV, credit limit, notes |
-| **Retirement Accounts** | Institution, type (401k/IRA…), account #, balance, notes |
-| **Stocks** | Ticker, company, shares, purchase price, current price, brokerage, notes |
-| **Cryptocurrency** | Coin, symbol, quantity, purchase price, current price, wallet/exchange, notes |
-| **Other Assets** | Category, description, estimated value, notes |
+| **Bank Accounts** | Institution, type, account #, routing #, balance, notes |
+| **Credit Cards** | Issuer, card type, card #, expiry (MM/YY), CVV, PIN, balance, card limit, notes |
+| **Retirement Accounts** | Institution, type (401k/IRA…), account #, current balance, notes |
+| **Stocks** | Ticker, company, shares, value ($), brokerage, notes |
+| **Cryptocurrency** | Coin, symbol, quantity, value ($), wallet/exchange, wallet ID, notes |
+| **Other Assets** | Category, description, estimated value, loan remaining, net equity (computed), notes |
 | **Debts** | Type, lender, account #, balance, interest rate, minimum payment, notes |
 
 Supported operations per entry: **Add · Edit · Duplicate · Delete**
+
+### ✏ Inline Cell Editing
+
+- Click any data cell in a table row to edit it directly — no modal required.
+- A pencil icon (✎) appears on hover to indicate editable cells.
+- Press **Enter** to commit, **Escape** to cancel, or click away to save.
+- Select-type fields (e.g. Card Type) render as a dropdown inline.
+- Suppressed while a search filter is active. Notes and computed columns (e.g. Net Equity) continue to require the full modal.
 
 ### 🔍 Global Search & Filtering
 
@@ -55,7 +64,7 @@ Supported operations per entry: **Add · Edit · Duplicate · Delete**
 
 Automatically computes and displays in the header bar:
 
-- **Total Assets** — bank balances + retirement + stocks (shares × current price) + crypto (quantity × current price) + other assets
+- **Total Assets** — bank balances + retirement balances + stock values + crypto values + other asset equity
 - **Total Debts** — sum of all debt balances
 - **Net Worth** — assets minus debts
 
@@ -69,6 +78,10 @@ Record point-in-time financial snapshots and view trends:
 
 Charts are rendered in pure **HTML Canvas** — no Chart.js, no external libraries.
 
+### ↕ Row Reordering
+
+Drag the ⠿ handle on any row to reorder entries within a category. Reordering is suppressed while a search filter is active.
+
 ### ☀/🌙 Appearance
 
 - Dark mode (default) and light mode, toggled in Settings.
@@ -80,7 +93,12 @@ Export any combination of categories to:
 
 - **CSV** — spreadsheet-compatible, one section per category
 - **JSON** — structured data dump
-- **PDF** — formatted print view via browser print dialog
+- **PDF** — formatted print view via browser print dialog, with snapshot charts embedded if the Snapshots tab was visited during the session
+
+Optional redaction on export:
+- Bank account numbers (last 4 only)
+- Card numbers (last 4 only)
+- Card CVV & PIN
 
 ---
 

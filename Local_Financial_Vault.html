@@ -581,6 +581,84 @@ mark { background: #3fa9f540; color: var(--fg); border-radius: 2px; padding: 0 1
 
 /* MM/YY expiration auto-format */
 input[name="expDate"] { letter-spacing: 0.05em; }
+
+/* Inline cell editing */
+td.editable-cell {
+  cursor: pointer;
+  position: relative;
+}
+td.editable-cell:hover {
+  background: var(--input-bg) !important;
+  outline: 1px dashed var(--accent);
+  outline-offset: -1px;
+}
+td.editable-cell:hover::after {
+  content: "✎";
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  color: var(--accent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+td.cell-editing {
+  padding: 0 !important;
+  outline: 2px solid var(--accent) !important;
+  outline-offset: -2px;
+  background: var(--input-bg) !important;
+}
+td.cell-editing input,
+td.cell-editing select {
+  width: 100%;
+  height: 100%;
+  min-height: 1.8rem;
+  padding: 0.25rem 0.4rem;
+  border: none;
+  background: var(--input-bg);
+  color: var(--fg);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+}
+td.cell-editing select { cursor: pointer; }
+
+/* Unsaved changes warning banner */
+#unsavedBanner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  background: #7c3f00;
+  border-bottom: 1px solid #b05a00;
+  font-size: 0.78rem;
+  color: #ffd580;
+  flex-shrink: 0;
+}
+body.light-mode #unsavedBanner {
+  background: #fff3cd;
+  border-bottom-color: #f0c000;
+  color: #7a4f00;
+}
+#unsavedBanner.visible { display: flex; }
+#unsavedBanner button {
+  background: #b05a00;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+body.light-mode #unsavedBanner button {
+  background: #e6a817;
+  color: #fff;
+}
+
 #saveIndicator {
   font-size: 0.7rem;
   padding: 0.15rem 0.35rem;
@@ -640,6 +718,10 @@ body.light-mode #saveIndicator {
     <div class="top-bar">
       <input type="text" id="searchBox" placeholder="Search across all data...">
       <span class="status" id="searchStatus"></span>
+    </div>
+    <div id="unsavedBanner">
+      <span>⚠ You have unsaved changes.</span>
+      <button id="btnBannerSave">💾 Save Now</button>
     </div>
     <div class="tabs" id="tabs">
       <div class="tab active" data-tab="bankAccounts">🏦 Bank</div>
@@ -824,6 +906,7 @@ let openedFileText = null;     // fallback: raw text of opened file (for non-FSA
 let openedFileName = null;     // original filename from disk (used to suggest re-save target)
 let darkMode = true;           // default dark
 let exportFormat = "csv";      // active export format
+let hasUnsavedChanges = false; // tracks unsaved state
 
 const AUTO_LOCK_MS = 10 * 60 * 1000;
 const FSAA_SUPPORTED = ("showSaveFilePicker" in window);
@@ -870,7 +953,7 @@ const SCHEMAS = {
   crypto: [
     { key: "coin",          label: "Coin / Token",     type: "text" },
     { key: "symbol",        label: "Symbol",           type: "text" },
-    { key: "quantity",      label: "Quantity",         type: "number" },
+    { key: "quantity",      label: "Quantity",         type: "text" },
     { key: "currentPrice",  label: "Value ($)",        type: "number" },
     { key: "wallet",        label: "Wallet / Exchange", type: "text" },
     { key: "walletId",      label: "ID",               type: "text" },
@@ -909,6 +992,30 @@ const CATEGORY_LABELS = {
    UTILITIES
 ============================================================ */
 function setStatus(msg) { document.getElementById("statusText").textContent = msg; }
+
+function markUnsaved() {
+  hasUnsavedChanges = true;
+  document.getElementById("unsavedBanner").classList.add("visible");
+}
+
+function markSaved() {
+  hasUnsavedChanges = false;
+  document.getElementById("unsavedBanner").classList.remove("visible");
+}
+
+// Banner quick-save button
+document.getElementById("btnBannerSave").addEventListener("click", () => {
+  resetAutoLockTimer();
+  saveVaultToDisk();
+});
+
+// Warn before closing tab/window with unsaved changes
+window.addEventListener("beforeunload", e => {
+  if (hasUnsavedChanges) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
 
 function resetAutoLockTimer() {
   if (autoLockTimer) clearTimeout(autoLockTimer);
@@ -1191,6 +1298,7 @@ async function doSaveVault(fileName) {
   setStatus("🔐 Deriving key (this takes a moment)…");
   const armored = await encryptVault(vaultPassword);
   await _writeVault(armored, fileName);
+  markSaved();
 }
 
 // Try to acquire a writable FSAA handle via the Save File Picker dialog.
@@ -1308,6 +1416,7 @@ function lockVault() {
   updateSummary(); renderCurrentTab();
   setStatus("Locked. Create or open a vault.");
   updateSaveIndicator();
+  markSaved();
 }
 
 const showModal = id => { document.getElementById(id).style.display = "flex"; };
@@ -1338,6 +1447,7 @@ document.getElementById("confirmCreateVault").onclick = () => {
   updateSummary(); renderCurrentTab(); resetAutoLockTimer();
   setStatus('New vault "' + name + '" created. Remember to save!');
   updateSaveIndicator();
+  markUnsaved();
   hideModal("modalCreateVault");
 };
 
@@ -1372,6 +1482,7 @@ document.getElementById("confirmOpenVault").onclick = async () => {
     setStatus('Vault "' + vaultFileName + '" opened ✓');
     updateSummary(); renderCurrentTab();
     updateSaveIndicator();
+    markSaved();
   } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
   pendingOpenFile = null;
 };
@@ -1421,6 +1532,7 @@ document.getElementById("confirmOpenVault").onclick = async () => {
     setStatus('Vault "' + vaultFileName + '" opened ✓');
     updateSummary(); renderCurrentTab();
     updateSaveIndicator();
+    markSaved();
   } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
   pendingOpenFile = null;
 };
@@ -1854,6 +1966,7 @@ document.getElementById("btnRecordSnapshot").onclick = () => {
   updateSummary();
   if (currentTab === "snapshots") renderCurrentTab();
   setStatus("Snapshot recorded.");
+  markUnsaved();
 };
 
 /* ============================================================
@@ -1935,7 +2048,7 @@ function renderCategory(container, category) {
           }
         }
       }
-      html += `<td${colorStyle}>${highlightText(String(val),searchQuery)}</td>`;
+      html += `<td${colorStyle} class="${!searchQuery ? 'editable-cell' : ''}" data-category="${category}" data-row="${ri}" data-field="${f.key}" data-ftype="${f.type}">${highlightText(String(val),searchQuery)}</td>`;
     });
     // Computed Net Equity column for otherAssets
     if (category === "otherAssets") {
@@ -1956,7 +2069,103 @@ function renderCategory(container, category) {
   // Attach drag-and-drop listeners if not in search mode
   if (!searchQuery) {
     initDragAndDrop(container.querySelector(`#drag-tbody-${category}`), category);
+    initInlineEditing(container.querySelector(`#drag-tbody-${category}`), category);
   }
+}
+
+/* ============================================================
+   INLINE CELL EDITING
+============================================================ */
+function initInlineEditing(tbody, category) {
+  if (!tbody) return;
+  const schema = SCHEMAS[category];
+
+  tbody.addEventListener("click", e => {
+    const td = e.target.closest("td.editable-cell");
+    if (!td) return;
+    if (td.classList.contains("cell-editing")) return; // already open
+
+    // Close any other open inline editors first
+    commitInlineEdit(tbody);
+
+    const rowIndex  = parseInt(td.dataset.row,   10);
+    const fieldKey  = td.dataset.field;
+    const fieldType = td.dataset.ftype;
+    const fieldDef  = schema.find(f => f.key === fieldKey);
+    if (!fieldDef) return;
+
+    const rawValue = vault.accounts[category][rowIndex][fieldKey] ?? "";
+
+    td.classList.add("cell-editing");
+    td.classList.remove("editable-cell");
+
+    let input;
+    if (fieldDef.type === "select") {
+      input = document.createElement("select");
+      input.innerHTML = `<option value="">-- Select --</option>` +
+        fieldDef.options.map(o => `<option value="${escapeHtml(o)}"${o===rawValue?" selected":""}>${escapeHtml(o)}</option>`).join("");
+    } else {
+      input = document.createElement("input");
+      input.type = "text";
+      // For number fields show raw value (no currency symbol) for easy editing
+      input.value = rawValue;
+      if (fieldDef.placeholder) input.placeholder = fieldDef.placeholder;
+    }
+
+    input.dataset.rowIndex  = rowIndex;
+    input.dataset.fieldKey  = fieldKey;
+    input.dataset.fieldType = fieldType;
+
+    td.textContent = "";
+    td.appendChild(input);
+    input.focus();
+    if (input.type === "text") {
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+
+    // Commit on Enter, abort on Escape
+    input.addEventListener("keydown", ev => {
+      if (ev.key === "Enter") { ev.preventDefault(); commitInlineEdit(tbody, true); }
+      if (ev.key === "Escape") { ev.preventDefault(); abortInlineEdit(tbody, category); }
+    });
+
+    // Commit on blur (clicking away)
+    input.addEventListener("blur", () => {
+      // Small delay so Escape keydown fires before blur
+      setTimeout(() => commitInlineEdit(tbody, true), 80);
+    });
+  });
+}
+
+function commitInlineEdit(tbody, save = false) {
+  if (!tbody) return;
+  const input = tbody.querySelector("td.cell-editing input, td.cell-editing select");
+  if (!input) return;
+  const td = input.closest("td.cell-editing");
+  if (!td) return;
+
+  const category  = td.dataset.category;
+  const rowIndex  = parseInt(input.dataset.rowIndex, 10);
+  const fieldKey  = input.dataset.fieldKey;
+  const fieldType = input.dataset.fieldType;
+
+  if (save && vault && vault.accounts[category] && vault.accounts[category][rowIndex] !== undefined) {
+    let newVal = input.value;
+    // For number fields strip commas before storing
+    if (fieldType === "number") newVal = stripCommas(newVal);
+    vault.accounts[category][rowIndex][fieldKey] = newVal;
+    vault.metadata.lastModifiedAt = new Date().toISOString();
+    markUnsaved();
+    updateSummary();
+  }
+
+  // Re-render just this tab to refresh display values & colors
+  renderCurrentTab();
+}
+
+function abortInlineEdit(tbody, category) {
+  // Just re-render to restore original display
+  renderCurrentTab();
 }
 
 /* ============================================================
@@ -2009,6 +2218,7 @@ function initDragAndDrop(tbody, category) {
 
     updateSummary();
     renderCurrentTab();
+    markUnsaved();
   });
 }
 
@@ -2216,14 +2426,14 @@ function deleteEntry(category, index) {
   if (!confirm("Delete this entry?")) return;
   vault.accounts[category].splice(index,1);
   vault.metadata.lastModifiedAt = new Date().toISOString();
-  updateSummary(); renderCurrentTab(); setStatus("Entry deleted."); resetAutoLockTimer();
+  updateSummary(); renderCurrentTab(); setStatus("Entry deleted."); resetAutoLockTimer(); markUnsaved();
 }
 
 function deleteSnapshot(index) {
   if (!confirm("Delete this snapshot?")) return;
   vault.snapshots.splice(index,1);
   vault.metadata.lastModifiedAt = new Date().toISOString();
-  renderCurrentTab(); setStatus("Snapshot deleted."); resetAutoLockTimer();
+  renderCurrentTab(); setStatus("Snapshot deleted."); resetAutoLockTimer(); markUnsaved();
 }
 
 /* ============================================================
@@ -2308,6 +2518,7 @@ document.getElementById("btnSaveModal").onclick = () => {
   vault.metadata.lastModifiedAt = new Date().toISOString();
   updateSummary(); renderCurrentTab();
   setStatus((index === null ? "Entry added." : "Entry updated."));
+  markUnsaved();
   hideModal("modalBackdrop");
 };
 

@@ -13,6 +13,22 @@ Changes staged but not yet formally released go here.
 
 ---
 
+## [2.2.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.2.0) — 2026-05-07
+
+> **Compatible with V2 vault files.** No re-encryption or migration is required.
+
+### Added
+
+- **Inline cell editing** — clicking any data cell in a category table opens it for direct editing without opening the full Add/Edit modal. A pencil icon (✎) appears on hover to indicate editability. Press **Enter** to commit, **Escape** to cancel, or click away to save. Select-type fields (e.g. Card Type) render as a dropdown. Number fields store raw values without currency formatting; the formatted display is restored after saving. Inline editing is suppressed while a search filter is active to prevent row-index mismatches. Notes and computed columns (e.g. Net Equity on Other Assets) are not inline-editable and continue to require the modal.
+- **Unsaved changes warning banner** — an amber banner is displayed below the search bar whenever the vault has unsaved changes. The banner includes a **Save Now** shortcut button that triggers the normal save flow. The banner is shown after any data-mutating action (add, edit, delete, duplicate, inline cell edit, drag-to-reorder, snapshot record, snapshot delete) and is dismissed automatically after a successful save or when the vault is locked and cleared.
+- **`beforeunload` guard** — if the vault has unsaved changes, attempting to close or refresh the browser tab triggers the browser's standard "Leave site?" confirmation dialog, preventing accidental data loss.
+
+### Fixed
+
+- **Crypto `quantity` field type** — the Quantity field in the Crypto schema has been changed from `number` to `text`. This prevents the live comma-formatting and currency-stripping logic from being applied to a field that holds a unit count rather than a dollar amount (e.g. `0.00473821` BTC). The value is displayed and stored as entered and is not used in any financial calculations.
+
+---
+
 ## [2.1.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.1.0) — 2026-05-07
 
 > **Compatible with V2 vault files.** No re-encryption or migration is required. The `migrateVault()` function automatically upgrades any V2 vault with the older schema layout on first open. See [MIGRATION.md](https://github.com/Scrince/Local_Financial_Vault/blob/main/MIGRATION.md) for details.
