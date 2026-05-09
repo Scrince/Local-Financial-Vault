@@ -13,6 +13,24 @@ Changes staged but not yet formally released go here.
 
 ---
 
+## [2.3.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.3.0) — 2026-05-08
+
+> **Compatible with V2 vault files.** No re-encryption or migration is required.
+
+### Added
+
+- **Keyfile auto-population after generation** — when a raw keyfile (`.key`) or encrypted keyfile (`.enc.key`) is generated and downloaded, the "Or load an existing keyfile" file input in the Create Vault modal is automatically populated with the generated keyfile. This removes the need to manually re-select the file that was just downloaded. Implemented via the `DataTransfer` API; silently no-ops on browsers that do not support programmatic file input assignment. For encrypted keyfiles, the input is populated with a raw `.key` stub built from the in-memory key bytes already held in `pendingKeyfileBytes`, since the vault creation flow consumes those bytes directly — the downloaded `.enc.key` remains the durable backup for future vault opens.
+
+- **Auto-save on vault creation** — clicking **Create** in the Create Vault modal now immediately encrypts and saves the vault to disk after initialisation, rather than requiring a separate **💾 Save Vault** action. The vault name entered in the modal is pre-applied as `vaultFileName` before the save is triggered, so the name-prompt modal is bypassed and the save proceeds directly to the File System Access API picker (Chromium) or a plain download (Firefox/Safari). The status bar shows `🔐 Saving new vault…` during key derivation and updates to `Vault "name" created & saved ✓` on success. If the save fails or is cancelled, the vault remains loaded in memory, the unsaved-changes banner appears, and the status bar prompts the user to retry with **💾 Save Vault**.
+
+- **Encrypted keyfile password match progress bar** — the "Generate Encrypted Keyfile" password area now includes the same live match progress bar used in the Create Vault password fields. The bar is hidden until the confirm field receives input, shows a red partial-fill representing leading-character overlap while the passwords differ, and turns green at full width with a ✓ label when both fields match exactly. The bar resets automatically whenever the encrypted keyfile password fields are cleared — on toggle-off, cancel, after a successful generation, and on vault creation confirmation.
+
+### Fixed
+
+- **Keyfile file input styling in modals** — the `::file-selector-button` CSS rule and base `input[type="file"]` styles previously only targeted `.sidebar input[type="file"]`. File inputs inside `.modal` (the "Or load an existing keyfile" input in the Create Vault modal and the keyfile input in the Open Vault modal) were unstyled, causing browsers to render the default OS-native button with a visible grey box artifact beside the filename. The selectors have been extended to cover `.modal input[type="file"]` as well, applying the same accent-coloured button style and removing the background/border that produced the artefact.
+
+---
+
 ## [2.2.0](https://github.com/Scrince/Local_Financial_Vault/releases/tag/v2.2.0) — 2026-05-07
 
 > **Compatible with V2 vault files.** No re-encryption or migration is required.

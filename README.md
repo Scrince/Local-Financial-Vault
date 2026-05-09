@@ -21,10 +21,19 @@
 - No plaintext financial data is ever written to disk.
 - Fully offline — **no servers, no cloud, no external APIs or CDNs**.
 
+### 🔑 Optional Keyfile Protection
+
+- Toggle **Require a keyfile** during vault creation to add a second authentication factor.
+- Choose between a **raw keyfile** (`.key`) — 64 bytes of cryptographically random data — or an **encrypted keyfile** (`.enc.key`) protected by its own separate password.
+- The keyfile is mixed into the password via `HMAC-SHA512(keyfileBytes, UTF8(password))` before KDF, cryptographically binding both factors. Either alone is insufficient to open the vault.
+- After generating a keyfile, the file input is **automatically populated** with the just-generated file — no need to manually re-select it before clicking Create.
+- A **live password match bar** is shown when setting an encrypted keyfile password, identical to the one used for the vault master password.
+- A warning is shown at creation time: losing the keyfile makes the vault permanently unrecoverable. Keep a backup in a separate, safe location.
+
 ### 📁 Vault Lifecycle
 
-- Create, open, and save encrypted `.lfv` vault files.
-- In-place overwrite via the **File System Access API** (Chromium-based browsers) — no re-download required.
+- **Auto-save on creation** — clicking **Create** immediately encrypts and saves the vault to disk. On Chromium-based browsers the File System Access API picker opens pre-filled with the vault name; on Firefox/Safari the file downloads automatically. No separate Save step is required after creation.
+- In-place overwrite via the **File System Access API** (Chromium-based browsers) — no re-download required on subsequent saves.
 - Fallback download for all other browsers — saves use the same file name automatically.
 - Opening a vault replaces all in-memory data.
 - Automatic lock after **10 minutes of inactivity**.
@@ -107,10 +116,12 @@ Optional redaction on export:
 1. **Download** `LocalFinancialVault.html` from this repository.
 2. **Open** it in any modern browser — no installation, no build step, no internet required.
 3. Click **＋ Create Vault**, set a strong password (12+ characters), and start adding entries.
-4. Click **💾 Save Vault** to save an encrypted `.lfv` file to your disk.
+4. The vault is **saved automatically** when you click Create — choose a location when prompted (Chromium) or find the download in your Downloads folder (Firefox/Safari).
 5. To re-open later, use the **Open vault file** input and enter your password.
 
-> **Tip (Chromium browsers):** After saving once, subsequent saves overwrite the file in-place without prompting for a download location.
+> **Tip (Chromium browsers):** After the initial save, subsequent saves overwrite the file in-place without prompting for a download location.
+
+> **Tip (Keyfile):** Enable the keyfile option during vault creation for a second authentication factor. Generate the keyfile first — it will auto-populate the file input — then click Create. Store the keyfile separately from the vault file.
 
 ---
 
@@ -126,6 +137,7 @@ Optional redaction on export:
   "kdf_iterations": 1000000,
   "cipher":         "HMAC-SHA512-CTR",
   "mac_algo":       "HMAC-SHA512",
+  "has_keyfile":    false,
   "salt_b64":       "<256-bit random salt, base64>",
   "nonce_b64":      "<256-bit random nonce, base64>",
   "ciphertext_b64": "<encrypted vault JSON, base64>",
@@ -133,19 +145,22 @@ Optional redaction on export:
 }
 ```
 
-The file is fully self-describing. Every cryptographic parameter needed to decrypt and verify the vault is stored alongside the ciphertext — no external configuration required.
+The file is fully self-describing. Every cryptographic parameter needed to decrypt and verify the vault is stored alongside the ciphertext — no external configuration required. The `has_keyfile` flag allows the Open Vault modal to detect keyfile requirement before any decryption is attempted.
 
 ---
 
 ## Encryption Model (V2)
 
 ```
-Password + Salt
+Password [+ Keyfile (optional)]
+      │
+      │  If keyfile present:
+      │  effectivePassword = HMAC-SHA512(keyfileBytes, UTF8(password))
       │
       ▼
 PBKDF2-HMAC-SHA512 (1,000,000 iterations) → 512-bit IKM
       │
-      ├─ HMAC-SHA512(IKM, "encryption")   → 512-bit Encryption Key
+      ├─ HMAC-SHA512(IKM, "encryption")     → 512-bit Encryption Key
       └─ HMAC-SHA512(IKM, "authentication") → 512-bit Authentication Key
 
 Plaintext (vault JSON)
@@ -159,7 +174,33 @@ MAC
 → Stored as JSON armor with magic header LOCALFINANCIALVAULT-V2
 ```
 
-MAC is verified **before** any decryption attempt (encrypt-then-MAC pattern). A wrong password or corrupted file is detected immediately without exposing any plaintext.
+MAC is verified **before** any decryption attempt (encrypt-then-MAC pattern). A wrong password, wrong keyfile, or corrupted file is detected immediately without exposing any plaintext.
+
+When a keyfile is used, the effective entropy floor is **512 bits** (the HMAC-SHA512 output), regardless of password strength. Both factors are required simultaneously — neither alone provides any information about the derived key.
+
+---
+
+## Keyfile Format
+
+Keyfiles are JSON with one of two structures:
+
+**Raw keyfile (`.key`):**
+```json
+{ "magic": "KEYFILE", "v": 1, "len": 64, "key": "<64 random bytes, base64>" }
+```
+
+**Encrypted keyfile (`.enc.key`):**
+```json
+{
+  "magic": "KEYFILE-ENC", "v": 1,
+  "kdf":   { "algo": "PBKDF2-SHA512", "i": 200000, "s": "<salt, base64>" },
+  "n":     "<nonce, base64>",
+  "ct":    "<encrypted key bytes, base64>",
+  "mac":   "<HMAC-SHA512 integrity tag, base64>"
+}
+```
+
+Encrypted keyfiles use PBKDF2-SHA512 (200,000 iterations) + HMAC-SHA512-CTR + HMAC-SHA512 MAC — the same construction as the vault itself, with a 4-byte counter matching the Keyfile Generator tool.
 
 ---
 
@@ -204,6 +245,7 @@ The vault JSON (before encryption) follows this schema:
 - **Each save generates a fresh random salt and nonce.** The same password will produce a different ciphertext every time.
 - **The 1M-iteration KDF is intentional.** It makes brute-force attacks approximately 10× harder than the previous 100k-iteration scheme. Expect 2–5 seconds for key derivation on modern hardware — a status message is displayed during this time.
 - **No metadata leakage.** The encrypted payload is the entire vault object. Category names, entry counts, and field values are all encrypted.
+- **Keyfile security.** The keyfile and vault file should be stored separately. If both are on the same device and an attacker obtains both, security reduces to the strength of the password alone. The keyfile provides the strongest protection when kept on a separate physical medium (USB drive, printed QR code).
 - **This tool does not protect against a compromised device.** If your OS, browser, or file system is compromised, no client-side encryption can fully protect your data.
 
 See [SECURITY.md](SECURITY.md) for the full security policy and vulnerability reporting process.

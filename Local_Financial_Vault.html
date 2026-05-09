@@ -153,7 +153,8 @@ main {
 
 .sidebar button.danger { background: var(--danger); }
 
-.sidebar input[type="file"]::file-selector-button {
+.sidebar input[type="file"]::file-selector-button,
+.modal input[type="file"]::file-selector-button {
   background: var(--accent);
   color: #fff;
   border: none;
@@ -161,12 +162,17 @@ main {
   border-radius: 3px;
   font-size: 0.8rem;
   cursor: pointer;
+  margin-right: 0.4rem;
 }
 
-.sidebar input[type="file"] {
+.sidebar input[type="file"],
+.modal input[type="file"] {
   width: 100%;
   font-size: 0.75rem;
   color: var(--muted);
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .content {
@@ -759,6 +765,52 @@ body.light-mode #saveIndicator {
         <div id="pwMatchFill" style="height:100%;width:0%;background:#e74c3c;transition:width 0.2s,background 0.2s;border-radius:3px;"></div>
       </div>
     </div>
+    <!-- Keyfile section -->
+    <div style="margin-top:0.75rem;border-top:1px solid var(--border);padding-top:0.6rem;">
+      <div class="toggle-row" style="margin-bottom:0.4rem;">
+        <span style="font-size:0.82rem;color:var(--fg);">&#128273; Require a keyfile (optional)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="createKeyfileToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="createKeyfileArea" style="display:none;">
+        <div style="background:#7c3f0022;border:1px solid #b05a0055;border-radius:3px;padding:0.4rem 0.5rem;margin-bottom:0.5rem;font-size:0.75rem;color:#e09a30;">
+          &#9888; <strong>Warning:</strong> If you lose your keyfile the vault <em>cannot</em> be recovered. Keep a backup in a safe separate location.
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;">Generate a new keyfile:</div>
+        <button type="button" id="btnGenKeyfile" style="background:var(--accent);color:#fff;border:none;padding:0.3rem 0.5rem;border-radius:3px;font-size:0.8rem;cursor:pointer;width:100%;margin-bottom:0.25rem;">&#8659; Generate Raw Keyfile (.key)</button>
+        <button type="button" id="btnGenEncKeyfile" style="background:#7c5cbf;color:#fff;border:none;padding:0.3rem 0.5rem;border-radius:3px;font-size:0.8rem;cursor:pointer;width:100%;margin-bottom:0.25rem;">&#128274; Generate Encrypted Keyfile (.enc.key)</button>
+        <div id="genEncKeyfilePassArea" style="display:none;margin-bottom:0.35rem;">
+          <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.15rem;">Keyfile password <span style="font-weight:400;">(required to use this keyfile)</span></label>
+          <div class="pw-wrap" style="margin-bottom:0.2rem;">
+            <input type="password" id="genEncKeyfilePw" placeholder="Keyfile password">
+            <button type="button" class="pw-toggle" data-target="genEncKeyfilePw">&#128065;</button>
+          </div>
+          <div class="pw-wrap" style="margin-bottom:0.2rem;">
+            <input type="password" id="genEncKeyfilePw2" placeholder="Confirm keyfile password">
+            <button type="button" class="pw-toggle" data-target="genEncKeyfilePw2">&#128065;</button>
+          </div>
+          <div id="kfPwMatchBar" style="margin-bottom:0.35rem;display:none;">
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.2rem;" id="kfPwMatchLabel">Passwords do not match</div>
+            <div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;">
+              <div id="kfPwMatchFill" style="height:100%;width:0%;background:#e74c3c;transition:width 0.2s,background 0.2s;border-radius:3px;"></div>
+            </div>
+          </div>
+          <button type="button" id="btnConfirmGenEncKeyfile" style="background:#7c5cbf;color:#fff;border:none;padding:0.3rem 0.5rem;border-radius:3px;font-size:0.8rem;cursor:pointer;width:100%;">&#8659; Generate &amp; Download</button>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.2rem;margin-top:0.1rem;">Or load an existing keyfile:</div>
+        <input type="file" id="createKeyfileInput" accept=".key,.enc.key" style="width:100%;font-size:0.75rem;color:var(--muted);">
+        <div id="createKeyfileStatus" style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem;min-height:1rem;"></div>
+        <div id="createKeyfilePassArea" style="display:none;">
+          <label style="font-size:0.8rem;color:var(--muted);display:block;margin-top:0.35rem;">Keyfile password (to decrypt it)</label>
+          <div class="pw-wrap">
+            <input type="password" id="createKeyfilePassword">
+            <button type="button" class="pw-toggle" data-target="createKeyfilePassword">&#128065;</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="secondary" id="cancelCreateVault">Cancel</button>
       <button class="primary" id="confirmCreateVault">Create</button>
@@ -771,7 +823,22 @@ body.light-mode #saveIndicator {
   <div class="modal">
     <h3>Open Vault</h3>
     <label>Vault password</label>
-    <input type="password" id="openVaultPassword">
+    <div class="pw-wrap">
+      <input type="password" id="openVaultPassword">
+      <button type="button" class="pw-toggle" data-target="openVaultPassword">&#128065;</button>
+    </div>
+    <div id="openKeyfileSection" style="margin-top:0.6rem;border-top:1px solid var(--border);padding-top:0.5rem;display:none;">
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.35rem;">&#128273; This vault requires a keyfile.</div>
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.2rem;">Load keyfile (.key or .enc.key)</label>
+      <input type="file" id="openKeyfileInput" accept=".key,.enc.key" style="width:100%;font-size:0.75rem;color:var(--muted);">
+      <div id="openKeyfilePassArea" style="display:none;margin-top:0.35rem;">
+        <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.2rem;">Keyfile password</label>
+        <div class="pw-wrap">
+          <input type="password" id="openKeyfilePassword">
+          <button type="button" class="pw-toggle" data-target="openKeyfilePassword">&#128065;</button>
+        </div>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="secondary" id="cancelOpenVault">Cancel</button>
       <button class="primary" id="confirmOpenVault">Open</button>
@@ -907,6 +974,9 @@ let openedFileName = null;     // original filename from disk (used to suggest r
 let darkMode = true;           // default dark
 let exportFormat = "csv";      // active export format
 let hasUnsavedChanges = false; // tracks unsaved state
+let vaultKeyfileBytes = null;  // raw keyfile bytes (Uint8Array) mixed into derivation
+let vaultHasKeyfile = false;   // whether current vault requires a keyfile
+let pendingKeyfileBytes = null; // keyfile bytes staged during create flow
 
 const AUTO_LOCK_MS = 10 * 60 * 1000;
 const FSAA_SUPPORTED = ("showSaveFilePicker" in window);
@@ -1113,11 +1183,140 @@ async function pbkdf2sha512(password, salt, iterations, length) {
   );
 }
 
+/* ============================================================
+   KEYFILE HELPERS
+   Shares the exact same format as Keyfile Generator:
+     Raw:       { magic:"KEYFILE",     v:1, len:N, key:<b64> }
+     Encrypted: { magic:"KEYFILE-ENC", v:1, kdf:{algo,i,s}, n, ct, mac }
+   Encrypted keyfile uses PBKDF2-SHA512 / 200k iters / HMAC-SHA512-CTR
+   with 4-byte counter (matching the generator exactly).
+============================================================ */
+function kfB64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function kfBytesToB64(bytes) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+async function kfHmac512(keyBytes, dataBytes) {
+  const key = await crypto.subtle.importKey("raw", keyBytes, { name:"HMAC", hash:"SHA-512" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, dataBytes));
+}
+async function kfPbkdf2(pwBytes, saltBytes, iterations, len) {
+  const km = await crypto.subtle.importKey("raw", pwBytes, { name:"PBKDF2" }, false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name:"PBKDF2", salt:saltBytes, iterations, hash:"SHA-512" }, km, len * 8);
+  return new Uint8Array(bits);
+}
+// CTR with 4-byte counter — identical to Keyfile Generator
+async function kfCtrCrypt(keyBytes, nonceBytes, data) {
+  const blockSize = 64;
+  const out = new Uint8Array(data.length);
+  for (let i = 0; i < data.length; i += blockSize) {
+    const counter = new Uint8Array(nonceBytes.length + 4);
+    counter.set(nonceBytes);
+    counter.set(new Uint8Array([(i>>>24)&255,(i>>>16)&255,(i>>>8)&255,i&255]), nonceBytes.length);
+    const ks = await kfHmac512(keyBytes, counter);
+    const chunk = data.subarray(i, i + blockSize);
+    for (let j = 0; j < chunk.length; j++) out[i+j] = chunk[j] ^ ks[j];
+  }
+  return out;
+}
+
+// Parse a .key or .enc.key file; returns raw key bytes
+async function resolveKeyfile(file, keyfilePassword) {
+  let obj;
+  try { obj = JSON.parse(await file.text()); }
+  catch(e) { throw new Error("Keyfile is not valid JSON."); }
+  if (obj.magic === "KEYFILE") {
+    return kfB64ToBytes(obj.key);
+  }
+  if (obj.magic === "KEYFILE-ENC") {
+    if (!keyfilePassword) throw new Error("Keyfile is encrypted — please enter the keyfile password.");
+    const pwBytes = new TextEncoder().encode(keyfilePassword);
+    const salt = kfB64ToBytes(obj.kdf.s);
+    const nonce = kfB64ToBytes(obj.n);
+    const ciphertext = kfB64ToBytes(obj.ct);
+    const macStored = kfB64ToBytes(obj.mac);
+    const derived = await kfPbkdf2(pwBytes, salt, obj.kdf.i, 64);
+    const encKey = derived.slice(0, 32);
+    const macKey = derived.slice(32, 64);
+    const macInput = new Uint8Array(salt.length + nonce.length + ciphertext.length);
+    macInput.set(salt, 0);
+    macInput.set(nonce, salt.length);
+    macInput.set(ciphertext, salt.length + nonce.length);
+    const macCalc = await kfHmac512(macKey, macInput);
+    let ok = true;
+    for (let i = 0; i < macCalc.length; i++) if (macCalc[i] !== macStored[i]) ok = false;
+    if (!ok) throw new Error("Keyfile integrity check failed — wrong keyfile password.");
+    return await kfCtrCrypt(encKey, nonce, ciphertext);
+  }
+  throw new Error("Unrecognized keyfile format (expected KEYFILE or KEYFILE-ENC).");
+}
+
+// Generate a 64-byte random raw keyfile, download it, and return the bytes
+function generateAndDownloadKeyfile(name) {
+  const key = new Uint8Array(64);
+  crypto.getRandomValues(key);
+  const obj = { magic:"KEYFILE", v:1, len:64, key:kfBytesToB64(key) };
+  const blob = new Blob([JSON.stringify(obj)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (name || "vault") + ".key";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  return key;
+}
+
+// Generate an encrypted keyfile (.enc.key) — identical format to Keyfile Generator
+async function generateAndDownloadEncKeyfile(name, password) {
+  const key = new Uint8Array(64);
+  crypto.getRandomValues(key);
+  const pwBytes = new TextEncoder().encode(password);
+  const salt = new Uint8Array(16); crypto.getRandomValues(salt);
+  const nonce = new Uint8Array(16); crypto.getRandomValues(nonce);
+  const iterations = 200000;
+  const derived = await kfPbkdf2(pwBytes, salt, iterations, 64);
+  const encKey = derived.slice(0, 32);
+  const macKey = derived.slice(32, 64);
+  const ciphertext = await kfCtrCrypt(encKey, nonce, key);
+  const macInput = new Uint8Array(salt.length + nonce.length + ciphertext.length);
+  macInput.set(salt, 0); macInput.set(nonce, salt.length); macInput.set(ciphertext, salt.length + nonce.length);
+  const mac = await kfHmac512(macKey, macInput);
+  const obj = {
+    magic: "KEYFILE-ENC", v: 1,
+    kdf: { algo: "PBKDF2-SHA512", i: iterations, s: kfBytesToB64(salt) },
+    n: kfBytesToB64(nonce),
+    ct: kfBytesToB64(ciphertext),
+    mac: kfBytesToB64(mac)
+  };
+  const blob = new Blob([JSON.stringify(obj)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (name || "vault") + ".enc.key";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  return key; // return raw bytes so the vault can use them
+}
+
+// Mix keyfile bytes into password: HMAC-SHA512(keyfileBytes, UTF8(password)) → hex
+// Both password AND keyfile are required to reproduce this output
+async function mixKeyfileIntoPassword(password, keyfileBytes) {
+  if (!keyfileBytes || keyfileBytes.length === 0) return password;
+  const sig = await kfHmac512(keyfileBytes, new TextEncoder().encode(password));
+  return Array.from(sig).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
 // Derive two 64-byte keys from master key material using domain separation
 // encKey = HMAC-SHA512(ikm, "encryption")
 // macKey = HMAC-SHA512(ikm, "authentication")
 async function deriveKeys(password, salt) {
-  const ikm = await pbkdf2sha512(password, salt, 1_000_000, 64);
+  // If a keyfile is loaded, mix it into the password first
+  const effectivePwd = vaultKeyfileBytes
+    ? await mixKeyfileIntoPassword(password, vaultKeyfileBytes)
+    : password;
+  const ikm = await pbkdf2sha512(effectivePwd, salt, 1_000_000, 64);
   const ikmKey = await importHmacKey(ikm);
   const encRaw = await crypto.subtle.sign("HMAC", ikmKey, te("encryption"));
   const macRaw = await crypto.subtle.sign("HMAC", ikmKey, te("authentication"));
@@ -1203,6 +1402,7 @@ async function encryptVault(pwd) {
     kdf_iterations: 1_000_000,
     cipher:         "HMAC-SHA512-CTR",
     mac_algo:       "HMAC-SHA512",
+    has_keyfile:    vaultHasKeyfile,
     salt_b64:       b64e(salt.buffer),
     nonce_b64:      b64e(nonce.buffer),
     ciphertext_b64: b64e(ciphertext.buffer),
@@ -1232,6 +1432,9 @@ async function decryptVault(pwd, raw) {
 
   if (envelope.magic !== LFV_MAGIC) throw new Error("Magic header mismatch.");
   if (envelope.version !== LFV_VERSION) throw new Error("Unsupported vault version.");
+
+  // Expose keyfile flag so the open flow knows what to expect
+  decryptVault._lastHasKeyfile = !!envelope.has_keyfile;
 
   const salt       = new Uint8Array(b64d(envelope.salt_b64));
   const nonce      = new Uint8Array(b64d(envelope.nonce_b64));
@@ -1409,6 +1612,9 @@ function lockVault() {
   openedFileText = null;
   openedFileName = null;
   vaultFileName = null;
+  vaultKeyfileBytes = null;
+  vaultHasKeyfile = false;
+  pendingKeyfileBytes = null;
   if (autoLockTimer) clearTimeout(autoLockTimer);
   searchQuery = "";
   document.getElementById("searchBox").value = "";
@@ -1430,61 +1636,298 @@ document.getElementById("btnCreateVault").onclick = () => {
   showModal("modalCreateVault");
 };
 
-document.getElementById("cancelCreateVault").onclick = () => hideModal("modalCreateVault");
+document.getElementById("cancelCreateVault").onclick = () => {
+  pendingKeyfileBytes = null;
+  document.getElementById("createKeyfileToggle").checked = false;
+  document.getElementById("createKeyfileArea").style.display = "none";
+  document.getElementById("createKeyfileStatus").textContent = "";
+  document.getElementById("createKeyfileInput").value = "";
+  document.getElementById("createKeyfilePassArea").style.display = "none";
+  document.getElementById("genEncKeyfilePassArea").style.display = "none";
+  document.getElementById("genEncKeyfilePw").value = "";
+  document.getElementById("genEncKeyfilePw2").value = "";
+  document.getElementById("kfPwMatchBar").style.display = "none";
+  document.getElementById("kfPwMatchFill").style.width = "0%";
+  hideModal("modalCreateVault");
+};
 
-document.getElementById("confirmCreateVault").onclick = () => {
+// Toggle keyfile section
+document.getElementById("createKeyfileToggle").addEventListener("change", e => {
+  document.getElementById("createKeyfileArea").style.display = e.target.checked ? "block" : "none";
+  if (!e.target.checked) {
+    pendingKeyfileBytes = null;
+    document.getElementById("createKeyfileStatus").textContent = "";
+    document.getElementById("createKeyfileInput").value = "";
+    document.getElementById("createKeyfilePassArea").style.display = "none";
+    document.getElementById("genEncKeyfilePassArea").style.display = "none";
+    document.getElementById("genEncKeyfilePw").value = "";
+    document.getElementById("genEncKeyfilePw2").value = "";
+  }
+});
+
+// Populate the "choose file" input with a File object built from a blob,
+// so the user doesn't have to manually re-select the keyfile they just downloaded.
+function populateKeyfileInput(blob, fileName) {
+  try {
+    const file = new File([blob], fileName, { type: "application/json" });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const input = document.getElementById("createKeyfileInput");
+    input.files = dt.files;
+    // Dispatch change so the existing handler updates status + pendingKeyfileBytes
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch(e) {
+    // DataTransfer assignment not supported (rare) — silently skip; user can pick manually
+  }
+}
+
+// Generate raw .key
+document.getElementById("btnGenKeyfile").onclick = () => {
+  const name = (document.getElementById("createVaultName").value.trim() || "vault")
+    .replace(/[^a-zA-Z0-9_\-]/g, "_");
+  pendingKeyfileBytes = generateAndDownloadKeyfile(name);
+  const st = document.getElementById("createKeyfileStatus");
+  st.textContent = "\u2713 Raw keyfile generated and downloaded. Keep it safe!";
+  st.style.color = "#2ecc71";
+  // Hide enc password area in case it was open
+  document.getElementById("genEncKeyfilePassArea").style.display = "none";
+  document.getElementById("genEncKeyfilePw").value = "";
+  document.getElementById("genEncKeyfilePw2").value = "";
+  document.getElementById("kfPwMatchBar").style.display = "none";
+  document.getElementById("kfPwMatchFill").style.width = "0%";
+  // Auto-populate the "choose file" input with the just-generated keyfile
+  const obj = { magic: "KEYFILE", v: 1, len: 64, key: kfBytesToB64(pendingKeyfileBytes) };
+  populateKeyfileInput(new Blob([JSON.stringify(obj)], { type: "application/json" }), name + ".key");
+};
+
+// Show enc keyfile password fields
+document.getElementById("btnGenEncKeyfile").onclick = () => {
+  const area = document.getElementById("genEncKeyfilePassArea");
+  area.style.display = area.style.display === "none" ? "block" : "none";
+  document.getElementById("genEncKeyfilePw").value = "";
+  document.getElementById("genEncKeyfilePw2").value = "";
+  document.getElementById("kfPwMatchBar").style.display = "none";
+  document.getElementById("kfPwMatchFill").style.width = "0%";
+  const st = document.getElementById("createKeyfileStatus");
+  if (area.style.display !== "none") {
+    st.textContent = "Enter a password for your encrypted keyfile, then click Generate & Download.";
+    st.style.color = "var(--muted)";
+  } else {
+    st.textContent = "";
+  }
+};
+
+// Generate encrypted .enc.key after password is confirmed
+document.getElementById("btnConfirmGenEncKeyfile").onclick = async () => {
+  const p1 = document.getElementById("genEncKeyfilePw").value;
+  const p2 = document.getElementById("genEncKeyfilePw2").value;
+  if (!p1) { alert("Please enter a keyfile password."); return; }
+  if (p1 !== p2) { alert("Keyfile passwords do not match."); return; }
+  const name = (document.getElementById("createVaultName").value.trim() || "vault")
+    .replace(/[^a-zA-Z0-9_\-]/g, "_");
+  try {
+    pendingKeyfileBytes = await generateAndDownloadEncKeyfile(name, p1);
+    document.getElementById("genEncKeyfilePassArea").style.display = "none";
+    document.getElementById("genEncKeyfilePw").value = "";
+    document.getElementById("genEncKeyfilePw2").value = "";
+    const st = document.getElementById("createKeyfileStatus");
+    st.textContent = "\u2713 Encrypted keyfile generated and downloaded. Keep it safe!";
+    st.style.color = "#2ecc71";
+    // Auto-populate the "choose file" input using the raw key bytes already in
+    // pendingKeyfileBytes. We populate a raw .key stub so the change handler
+    // marks it as loaded without asking for a password — the vault creation
+    // will use pendingKeyfileBytes directly. The .enc.key the user downloaded
+    // is their durable backup for future vault opens.
+    const rawObj = { magic: "KEYFILE", v: 1, len: 64, key: kfBytesToB64(pendingKeyfileBytes) };
+    populateKeyfileInput(new Blob([JSON.stringify(rawObj)], { type: "application/json" }), name + ".key");
+  } catch(err) { alert("Error generating encrypted keyfile: " + err.message); }
+};
+
+// Load an existing keyfile during vault creation
+document.getElementById("createKeyfileInput").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const obj = JSON.parse(await f.text());
+    const isEnc = obj.magic === "KEYFILE-ENC";
+    document.getElementById("createKeyfilePassArea").style.display = isEnc ? "block" : "none";
+    document.getElementById("createKeyfilePassword").value = "";
+    const st = document.getElementById("createKeyfileStatus");
+    if (!isEnc) {
+      pendingKeyfileBytes = kfB64ToBytes(obj.key);
+      st.textContent = "\u2713 Keyfile loaded.";
+      st.style.color = "#2ecc71";
+    } else {
+      pendingKeyfileBytes = null;
+      st.textContent = "Enter keyfile password to unlock it on vault creation.";
+      st.style.color = "var(--muted)";
+    }
+  } catch(err) { alert("Invalid keyfile: " + err.message); e.target.value = ""; }
+});
+
+document.getElementById("confirmCreateVault").onclick = async () => {
   const name = document.getElementById("createVaultName").value.trim() || "vault";
   const p1 = document.getElementById("createVaultPassword").value;
   const p2 = document.getElementById("createVaultPassword2").value;
   if (p1.length < 1) { alert("Please enter a password."); return; }
   if (p1.length < 12 && !confirm("Password is shorter than the recommended 12 characters. Continue anyway?")) return;
   if (p1 !== p2) { alert("Passwords do not match."); return; }
+
+  const useKeyfile = document.getElementById("createKeyfileToggle").checked;
+  let kfBytes = null;
+  if (useKeyfile) {
+    const kfFile = document.getElementById("createKeyfileInput").files[0];
+    if (kfFile) {
+      try {
+        const obj = JSON.parse(await kfFile.text());
+        if (obj.magic === "KEYFILE-ENC") {
+          const kfPw = document.getElementById("createKeyfilePassword").value;
+          if (!kfPw) { alert("Please enter the keyfile password."); return; }
+          kfBytes = await resolveKeyfile(kfFile, kfPw);
+        } else {
+          kfBytes = kfB64ToBytes(obj.key);
+        }
+      } catch(err) { alert("Could not load keyfile: " + err.message); return; }
+    } else if (pendingKeyfileBytes) {
+      kfBytes = pendingKeyfileBytes;
+    } else {
+      alert("Please generate or load a keyfile, or uncheck the keyfile option.");
+      return;
+    }
+  }
+
   vaultPassword = p1;
-  vaultFileName = null; // No file name set until first save
+  vaultKeyfileBytes = kfBytes;
+  vaultHasKeyfile = !!kfBytes;
+  pendingKeyfileBytes = null;
   openedFileHandle = null;
   openedFileText = null;
   initEmptyVault(name);
+  // Pre-set vaultFileName so saveVaultToDisk skips the name-prompt modal
+  // and goes straight to the FSAA picker or plain download.
+  vaultFileName = name.replace(/[^a-zA-Z0-9_\-]/g, "_");
+  vault.metadata.name = vaultFileName;
   updateSummary(); renderCurrentTab(); resetAutoLockTimer();
-  setStatus('New vault "' + name + '" created. Remember to save!');
-  updateSaveIndicator();
-  markUnsaved();
+  // Reset keyfile UI
+  document.getElementById("createKeyfileToggle").checked = false;
+  document.getElementById("createKeyfileArea").style.display = "none";
+  document.getElementById("createKeyfileStatus").textContent = "";
+  document.getElementById("createKeyfileInput").value = "";
+  document.getElementById("createKeyfilePassArea").style.display = "none";
+  document.getElementById("genEncKeyfilePassArea").style.display = "none";
+  document.getElementById("genEncKeyfilePw").value = "";
+  document.getElementById("genEncKeyfilePw2").value = "";
+  document.getElementById("kfPwMatchBar").style.display = "none";
+  document.getElementById("kfPwMatchFill").style.width = "0%";
   hideModal("modalCreateVault");
+  // Auto-save: encrypt and download/write the vault immediately after creation.
+  const kfNote = vaultHasKeyfile ? " 🔑 (keyfile protected)" : "";
+  setStatus("🔐 Saving new vault" + kfNote + "…");
+  updateSaveIndicator();
+  try {
+    await saveVaultToDisk();
+    // markSaved is called inside doSaveVault; update status to reflect loaded state.
+    const savedNote = vaultHasKeyfile ? " 🔑" : "";
+    setStatus('Vault "' + vaultFileName + '" created & saved' + savedNote + ' ✓');
+  } catch(e) {
+    console.error(e);
+    markUnsaved();
+    setStatus('Vault created but save failed — use 💾 Save Vault to retry.');
+  }
 };
 
 /* Open */
-document.getElementById("vaultFile").addEventListener("change", e => {
+document.getElementById("vaultFile").addEventListener("change", async e => {
   pendingOpenFile = e.target.files[0];
   if (pendingOpenFile) {
     document.getElementById("openVaultPassword").value = "";
+    document.getElementById("openKeyfileInput").value = "";
+    document.getElementById("openKeyfilePassword").value = "";
+    document.getElementById("openKeyfilePassArea").style.display = "none";
+    // Peek inside armor to detect keyfile requirement (no decryption needed)
+    let peekKeyfile = false;
+    try {
+      const raw = (await pendingOpenFile.text()).trim();
+      if (raw.startsWith("LFV-ENCRYPTED-V2")) {
+        const encoded = raw.split(/\r?\n/).slice(1).join("").trim();
+        const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+        const env = JSON.parse(new TextDecoder().decode(bytes));
+        peekKeyfile = !!env.has_keyfile;
+      }
+    } catch(ex) { /* ignore — section stays hidden */ }
+    document.getElementById("openKeyfileSection").style.display = peekKeyfile ? "block" : "none";
     showModal("modalOpenVault");
   }
   e.target.value = "";
 });
 
-document.getElementById("cancelOpenVault").onclick = () => { pendingOpenFile = null; hideModal("modalOpenVault"); };
+// Show/hide keyfile password field when loading a keyfile in the Open modal
+document.getElementById("openKeyfileInput").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const obj = JSON.parse(await f.text());
+    document.getElementById("openKeyfilePassArea").style.display =
+      obj.magic === "KEYFILE-ENC" ? "block" : "none";
+    document.getElementById("openKeyfilePassword").value = "";
+  } catch(ex) { alert("Invalid keyfile."); e.target.value = ""; }
+});
+
+document.getElementById("cancelOpenVault").onclick = () => {
+  pendingOpenFile = null;
+  document.getElementById("openKeyfileSection").style.display = "none";
+  document.getElementById("openKeyfilePassArea").style.display = "none";
+  hideModal("modalOpenVault");
+};
 
 document.getElementById("confirmOpenVault").onclick = async () => {
   if (!pendingOpenFile) return;
   const pwd = document.getElementById("openVaultPassword").value;
   if (pwd.length < 1) { alert("Please enter the vault password."); return; }
+
+  // Resolve keyfile if the section is visible
+  const kfSection = document.getElementById("openKeyfileSection");
+  let resolvedKf = null;
+  if (kfSection.style.display !== "none") {
+    const kfFile = document.getElementById("openKeyfileInput").files[0];
+    if (!kfFile) { alert("This vault requires a keyfile. Please load it."); return; }
+    const kfPw = document.getElementById("openKeyfilePassword").value;
+    try {
+      resolvedKf = await resolveKeyfile(kfFile, kfPw);
+    } catch(err) { alert("Could not read keyfile: " + err.message); return; }
+  }
+
   hideModal("modalOpenVault");
   setStatus("🔐 Verifying key & MAC (this takes a moment)…");
   try {
+    vaultKeyfileBytes = resolvedKf; // set BEFORE decryptVault calls deriveKeys
     const text = (await pendingOpenFile.text()).trim();
     vault = migrateVault(await decryptVault(pwd, text));
     vaultPassword = pwd;
-    openedFileText = text; // store in memory
-    openedFileHandle = null;
-    openedFileName = pendingOpenFile.name; // remember original filename
-    // Extract name from metadata or filename
+    vaultHasKeyfile = !!resolvedKf;
+    if (window._pendingFSAAHandle) {
+      openedFileHandle = window._pendingFSAAHandle;
+      window._pendingFSAAHandle = null;
+      openedFileText = null;
+    } else {
+      openedFileText = text;
+      openedFileHandle = null;
+    }
+    openedFileName = pendingOpenFile.name;
     vaultFileName = vault.metadata.name || pendingOpenFile.name.replace(/\.lfv$/i,"") || "vault";
     resetAutoLockTimer();
-    setStatus('Vault "' + vaultFileName + '" opened ✓');
+    setStatus('Vault "' + vaultFileName + '" opened \u2713' + (vaultHasKeyfile ? " \uD83D\uDD11" : ""));
     updateSummary(); renderCurrentTab();
     updateSaveIndicator();
     markSaved();
-  } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
+  } catch(e) {
+    vaultKeyfileBytes = null;
+    setStatus("Locked. Create or open a vault.");
+    alert("Unable to decrypt file. Check password, keyfile, or file integrity.\n\n" + e.message);
+  }
   pendingOpenFile = null;
+  document.getElementById("openKeyfileSection").style.display = "none";
+  document.getElementById("openKeyfilePassArea").style.display = "none";
 };
 
 // Try File System Access API when available (Chromium-based browsers)
@@ -1498,44 +1941,28 @@ async function tryOpenWithFSAA() {
     });
     const file = await handle.getFile();
     pendingOpenFile = file;
-    // store handle — if the user unlocks successfully we'll use it
     window._pendingFSAAHandle = handle;
     document.getElementById("openVaultPassword").value = "";
+    document.getElementById("openKeyfileInput").value = "";
+    document.getElementById("openKeyfilePassword").value = "";
+    document.getElementById("openKeyfilePassArea").style.display = "none";
+    let peekKeyfile = false;
+    try {
+      const raw = (await file.text()).trim();
+      if (raw.startsWith("LFV-ENCRYPTED-V2")) {
+        const encoded = raw.split(/\r?\n/).slice(1).join("").trim();
+        const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+        const env = JSON.parse(new TextDecoder().decode(bytes));
+        peekKeyfile = !!env.has_keyfile;
+      }
+    } catch(ex) { /* ignore */ }
+    document.getElementById("openKeyfileSection").style.display = peekKeyfile ? "block" : "none";
     showModal("modalOpenVault");
   } catch(e) { /* user cancelled */ }
 }
 
-// Patch confirmOpenVault to also capture handle if available
-const _origConfirmOpen = document.getElementById("confirmOpenVault").onclick;
-document.getElementById("confirmOpenVault").onclick = async () => {
-  if (!pendingOpenFile) return;
-  const pwd = document.getElementById("openVaultPassword").value;
-  if (pwd.length < 1) { alert("Please enter the vault password."); return; }
-  hideModal("modalOpenVault");
-  setStatus("🔐 Verifying key & MAC (this takes a moment)…");
-  try {
-    const text = (await pendingOpenFile.text()).trim();
-    vault = migrateVault(await decryptVault(pwd, text));
-    vaultPassword = pwd;
-    // Capture FSAA handle if available
-    if (window._pendingFSAAHandle) {
-      openedFileHandle = window._pendingFSAAHandle;
-      window._pendingFSAAHandle = null;
-      openedFileText = null;
-    } else {
-      openedFileText = text;
-      openedFileHandle = null;
-    }
-    openedFileName = pendingOpenFile.name; // remember original filename
-    vaultFileName = vault.metadata.name || pendingOpenFile.name.replace(/\.lfv$/i,"") || "vault";
-    resetAutoLockTimer();
-    setStatus('Vault "' + vaultFileName + '" opened ✓');
-    updateSummary(); renderCurrentTab();
-    updateSaveIndicator();
-    markSaved();
-  } catch(e) { setStatus("Locked. Create or open a vault."); alert("Unable to decrypt file. Check password or file integrity.\n\n" + e.message); }
-  pendingOpenFile = null;
-};
+// FSAA open path — sets pendingOpenFile + _pendingFSAAHandle then shows modal
+// The unified confirmOpenVault handler above captures the handle on success.
 
 /* Save */
 document.getElementById("btnSaveVault").onclick = () => { resetAutoLockTimer(); saveVaultToDisk(); };
@@ -2601,6 +3028,38 @@ function updatePwMatchBar() {
 
 document.getElementById("createVaultPassword").addEventListener("input", updatePwMatchBar);
 document.getElementById("createVaultPassword2").addEventListener("input", updatePwMatchBar);
+
+/* ============================================================
+   ENC KEYFILE — PASSWORD MATCH PROGRESS BAR
+============================================================ */
+function updateKfPwMatchBar() {
+  const p1 = document.getElementById("genEncKeyfilePw").value;
+  const p2 = document.getElementById("genEncKeyfilePw2").value;
+  const bar = document.getElementById("kfPwMatchBar");
+  const fill = document.getElementById("kfPwMatchFill");
+  const label = document.getElementById("kfPwMatchLabel");
+  if (!p2) { bar.style.display = "none"; return; }
+  bar.style.display = "block";
+  if (p1 === p2) {
+    fill.style.width = "100%";
+    fill.style.background = "#2ecc71";
+    label.textContent = "\u2713 Passwords match";
+    label.style.color = "#2ecc71";
+  } else {
+    let matchLen = 0;
+    for (let i = 0; i < Math.min(p1.length, p2.length); i++) {
+      if (p1[i] === p2[i]) matchLen++; else break;
+    }
+    const pct = p1.length ? Math.round((matchLen / p1.length) * 90) : 0;
+    fill.style.width = pct + "%";
+    fill.style.background = "#e74c3c";
+    label.textContent = "Passwords do not match";
+    label.style.color = "var(--muted)";
+  }
+}
+
+document.getElementById("genEncKeyfilePw").addEventListener("input", updateKfPwMatchBar);
+document.getElementById("genEncKeyfilePw2").addEventListener("input", updateKfPwMatchBar);
 
 // Reset bar when modal closes
 document.getElementById("cancelCreateVault").addEventListener("click", () => {
